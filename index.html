@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Water Challenge 💧</title>
   
-  <!-- Estilos CSS Embebidos Completos -->
   <style>
     *, *::before, *::after {
       box-sizing: border-box;
@@ -41,7 +40,7 @@
     .header-section h1 {
       font-size: 24px;
       margin: 0 0 4px 0;
-      color: #1d4ed8;
+      color: #2563eb;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -444,7 +443,7 @@
       inset: 0;
       background: rgba(15, 23, 42, 0.6);
       backdrop-filter: blur(2px);
-      z-index: 99999; /* Asegura visualización completa sobre cualquier componente */
+      z-index: 99999; 
       display: flex;
       align-items: center;
       justify-content: center;
@@ -514,42 +513,34 @@
 
   <div class="app-container">
     
-    <!-- Encabezado General -->
     <div class="header-section">
       <h1>💧 Water Challenge</h1>
       <p>Reto de hidratación grupal • 30 días</p>
     </div>
 
-    <!-- Navegación de Pestañas -->
     <div class="tabs-nav">
       <button class="tab-btn active" id="tab-users" onclick="switchTab('users')">👥 Participantes</button>
       <button class="tab-btn" id="tab-ranking" onclick="switchTab('ranking')">🏅 Ranking</button>
     </div>
 
-    <!-- Contenedor Dinámico Principal -->
     <div id="main-content"></div>
 
   </div>
 
-  <!-- Contenedor para inyección de Modales -->
   <div id="modal-container"></div>
-  
-  <!-- Notificaciones Toast -->
   <div id="toast" class="toast"></div>
 
-  <!-- CDNs de Firebase v9 (Compatibilidad/Módulos) -->
   <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
 
   <script>
     // =========================================================================
-    // CONFIGURACIÓN DE FIREBASE (¡MANTÉN TUS CREDENCIALES ACTUALES AQUÍ!)
+    // CONFIGURACIÓN DE FIREBASE CORREGIDA CON TU URL REAL (e1ed6)
     // =========================================================================
     const firebaseConfig = {
-    databaseURL: "https://water-challenge-e1ed6-default-rtdb.firebaseio.com/" 
-      };
+      databaseURL: "https://water-challenge-e1ed6-default-rtdb.firebaseio.com/" 
+    };
     
-    // Inicializar Firebase
     const app = firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
 
@@ -557,14 +548,13 @@
     // ESTADO Y CONFIGURACIÓN DEL RETO (Fecha fijada a Hoy: 27 de Mayo de 2026)
     // =========================================================================
     let START = new Date('2026-05-27'); 
-    START.setHours(0,0,0,0); // Forzar inicio limpio a las 00:00 del día de hoy
+    START.setHours(0,0,0,0); 
 
     let myId = sessionStorage.getItem('wc_myid') || null;
     let viewingId = null; 
     let currentTab = 'users'; 
     let allUsers = {};
 
-    // Escucha en tiempo real de la base de datos
     db.ref('users').on('value', (snapshot) => {
       allUsers = snapshot.val() || {};
       console.log("-> Datos sincronizados desde Firebase:", allUsers);
@@ -594,7 +584,6 @@
       await db.ref('config').update(configObj);
     }
 
-    // Escuchar cambios de configuración global en Firebase (si existen)
     db.ref('config/startDate').on('value', (snapshot) => {
       if(snapshot.val()) {
         START = new Date(snapshot.val() + 'T00:00:00');
@@ -617,8 +606,8 @@
       render();
     }
 
-    function handleRegister(e) {
-      e.preventDefault();
+    function handleRegister(event) {
+      if (event) event.preventDefault();
       const name = document.getElementById('reg-name').value.trim().toLowerCase();
       const goal = parseInt(document.getElementById('reg-goal').value, 10);
       
@@ -634,8 +623,8 @@
       render();
     }
 
-    function handleLogIntake(e) {
-      e.preventDefault();
+    function handleLogIntake(event) {
+      if (event) event.preventDefault();
       const amount = parseInt(document.getElementById('intake-amount').value, 10);
       const todayStr = getLocalDateString(new Date());
       
@@ -654,7 +643,7 @@
     }
 
     // =========================================================================
-    // FUNCIONES REINICIO Y CONFIGURACIÓN CON REFRESCO AUTOMÁTICO (location.reload)
+    // REINICIOS Y CONFIGURACIÓN CON REFRESCO
     // =========================================================================
     async function resetMyChallenge() {
       console.log("-> Confirmación recibida. Limpiando historial en Firebase...");
@@ -663,7 +652,7 @@
         await resetUserDays(myId);
         if(allUsers[myId]) allUsers[myId].days = {};
         closeModal();
-        showToast('¡Reto reiniciado! Día 1 otra vez 💪');
+        showToast('¡Reto reiniciado! Días limpios 💪');
         setTimeout(() => { location.reload(); }, 800);
       } catch(e) {
         console.error(e);
@@ -672,7 +661,7 @@
     }
 
     async function applyNewStartDate(dateStr) {
-      console.log("-> Validando e inyectando nueva fecha global:", dateStr);
+      console.log("-> Sincronizando nueva fecha global:", dateStr);
       showToast('Guardando...');
       try {
         await saveConfig({ startDate: dateStr });
@@ -686,7 +675,7 @@
     }
 
     async function confirmDeleteProfile() {
-      console.log("-> Eliminando perfil por completo de Firebase...");
+      console.log("-> Eliminando perfil de la base de datos...");
       try {
         await deleteUserProfile(myId);
         sessionStorage.removeItem('wc_myid');
@@ -702,18 +691,16 @@
     }
 
     // =========================================================================
-    // RENDERIZADO VISUAL DINÁMICO DE LA INTERFAZ
+    // RENDERIZADO VISUAL DINÁMICO
     // =========================================================================
     function render() {
       const wrap = document.getElementById('main-content');
       wrap.innerHTML = '';
 
-      // Mostrar Banner azul superior si hay sesión activa
       if (myId && allUsers[myId]) {
         const me = allUsers[myId];
         const displayGoal = me.goal >= 1000 ? (me.goal / 1000) + 'L' : me.goal + ' ml';
         
-        // Calcular el día actual relativo en el banner
         const diffTime = new Date().setHours(0,0,0,0) - START.getTime();
         const calcDay = Math.max(1, Math.floor(diffTime / (1000 * 60 * 60 * 24)) + 1);
         const bannerDay = calcDay <= 30 ? calcDay : 30;
@@ -725,7 +712,6 @@
             <div class="avatar">${me.name[0]}</div>
             <div class="user-details">
               <h4>${me.name} <span style="color:#2563eb; font-size:11px;">(Tú)</span></h4>
-              <!-- Modificación dinámica de la meta basada en tu base de datos -->
               <p>Meta: ${displayGoal}/día • Día ${bannerDay} de 30</p>
             </div>
           </div>
@@ -734,13 +720,11 @@
         wrap.appendChild(banner);
       }
 
-      // VISTA DE RANKING
       if (currentTab === 'ranking') {
         renderRanking(wrap);
         return;
       }
 
-      // VISTA DE PARTICIPANTES O DASHBOARD INDIVIDUAL
       if (viewingId && allUsers[viewingId]) {
         renderDashboard(wrap, viewingId);
       } else {
@@ -748,15 +732,13 @@
       }
     }
 
-    // Lista de todos los perfiles o Registro inicial
     function renderUsersList(wrap) {
-      // Si no estoy registrado, forzar formulario de ingreso primero
       if (!myId) {
         const box = document.createElement('div');
         box.className = 'auth-box';
         box.innerHTML = `
           <h3>¡Únete al Reto de Hidratación!</h3>
-          <form onsubmit="handleRegister(e)">
+          <form id="reg-form">
             <div class="form-group">
               <label>Tu nombre completo / apodo:</label>
               <input type="text" id="reg-name" class="form-control" placeholder="Ej. Jhon Aguilera" required />
@@ -765,7 +747,6 @@
               <label>Meta de consumo diario:</label>
               <select id="reg-goal">
                 <option value="1500">1.5 litros</option>
-                <!-- Preseleccionado por defecto el valor de 2 litros solicitado -->
                 <option value="2000" selected>2 litros (Recomendado)</option>
                 <option value="2500">2.5 litros</option>
                 <option value="3000">3 litros</option>
@@ -775,9 +756,8 @@
             <button type="submit" class="btn-primary">Unirme al reto 💧</button>
           </form>
         `;
-        // Pequeño hack para corregir el submit inline
-        box.querySelector('form').addEventListener('submit', handleRegister);
         wrap.appendChild(box);
+        document.getElementById('reg-form').addEventListener('submit', handleRegister);
       }
 
       const title = document.createElement('h3');
@@ -820,17 +800,14 @@
       wrap.appendChild(listContainer);
     }
 
-    // Dashboard del Calendario de 30 días
     function renderDashboard(wrap, userId) {
       const u = allUsers[userId];
       const days = u.days || {};
       const goal = u.goal;
 
-      // Cálculos métricos
       const daysArray = Object.values(days);
       const daysMet = daysArray.filter(v => v >= goal).length;
       
-      // Cálculo de racha consecutiva hacia atrás desde hoy
       let streak = 0;
       let d = new Date();
       while(true) {
@@ -843,19 +820,16 @@
         }
       }
 
-      // Progreso porcentual basado en los 30 días del reto
       const progressPercent = Math.min(100, Math.round((daysMet / 30) * 100));
 
-      // Cabecera superior de navegación de vuelta
       const viewHeader = document.createElement('div');
       viewHeader.className = 'viewing-header';
       viewHeader.innerHTML = `
         <button class="btn-back" onclick="switchTab('users')">← Volver</button>
-        <span style="font-size:13px; font-weight:600; text-transform:capitalize;">Perfil de ${u.name}</span>
+        <span style="font-size:13px; font-weight:600; text-transform:capitalize; margin-left:8px;">Perfil de ${u.name}</span>
       `;
       wrap.appendChild(viewHeader);
 
-      // Bloque de Indicadores Numéricos
       const indGrid = document.createElement('div');
       indGrid.className = 'indicators-grid';
       indGrid.innerHTML = `
@@ -865,7 +839,6 @@
       `;
       wrap.appendChild(indGrid);
 
-      // Panel de Registro diario (Solo visible si el dueño del perfil está viéndolo)
       if (userId === myId) {
         const todayStr = getLocalDateString(new Date());
         const currentSavedIntake = days[todayStr] !== undefined ? days[todayStr] : -1;
@@ -873,13 +846,12 @@
         const intakeBox = document.createElement('div');
         intakeBox.className = 'intake-box';
         
-        // Calcular número de día absoluto de hoy
         const elapsed = Math.floor((new Date().setHours(0,0,0,0) - START.getTime()) / (1000 * 60 * 60 * 24)) + 1;
         const currentIntakeDay = elapsed >= 1 && elapsed <= 30 ? elapsed : 30;
 
         intakeBox.innerHTML = `
           <div class="intake-title">💧 Registrar mi consumo de hoy (Día ${currentIntakeDay})</div>
-          <form onsubmit="handleLogIntake(e)" class="intake-row">
+          <form id="intake-form" class="intake-row">
             <select id="intake-amount" style="flex: 1;">
               <option value="0" ${currentSavedIntake === 0 ? 'selected' : ''}>No tomé nada</option>
               <option value="500" ${currentSavedIntake === 500 ? 'selected' : ''}>0.5 litros</option>
@@ -893,11 +865,10 @@
             <button type="submit" class="btn-save-intake">Guardar</button>
           </form>
         `;
-        intakeBox.querySelector('form').addEventListener('submit', handleLogIntake);
         wrap.appendChild(intakeBox);
+        document.getElementById('intake-form').addEventListener('submit', handleLogIntake);
       }
 
-      // Sección de Calendario - 30 días
       const calSection = document.createElement('div');
       calSection.className = 'calendar-section';
       calSection.innerHTML = `
@@ -914,7 +885,6 @@
 
       const todayLocalDateStr = getLocalDateString(new Date());
 
-      // Generar celdas correspondientes a los 30 días fijados
       for (let i = 0; i < 30; i++) {
         let targetDate = new Date(START.getTime());
         targetDate.setDate(targetDate.getDate() + i);
@@ -943,25 +913,24 @@
       calSection.appendChild(grid);
       wrap.appendChild(calSection);
 
-      // Opciones administrativas avanzadas (Solo para el dueño de la sesión)
       if (userId === myId) {
         const settings = document.createElement('div');
         settings.className = 'settings-section';
         settings.innerHTML = `
           <h3>⚙️ Opciones del reto</h3>
           <div class="setting-item">
-            <label style="display:block; font-size:11px; font-weight:600; color:#475569; margin-bottom:4px;">Cambiar fecha de inicio global:</label>
+            <label style="display:block; font-size:11px; font-weight:600; color:#475569; margin-bottom:4px;">📅 Cambiar fecha de inicio global:</label>
             <div class="setting-row">
               <input type="date" id="new-start-date" class="form-control" style="padding:6px;" value="${START.toISOString().split('T')[0]}" />
               <button class="btn-secondary" style="padding:6px 12px; font-size:12px;" onclick="triggerApplyDate()">Aplicar</button>
             </div>
           </div>
           <div class="action-row" style="margin-top:16px;">
-            <span>Reiniciar mi progreso a cero:</span>
+            <span>🔄 Reiniciar mi progreso a cero:</span>
             <button class="btn-danger-outline" onclick="triggerResetModal()">Reiniciar reto</button>
           </div>
           <div class="action-row">
-            <span>Eliminar mi perfil por completo:</span>
+            <span>🗑 Eliminar mi perfil por completo:</span>
             <button class="btn-danger-outline" onclick="triggerDeleteModal()">Eliminar perfil</button>
           </div>
         `;
@@ -969,7 +938,6 @@
       }
     }
 
-    // Listado de Ranking Ordenado
     function renderRanking(wrap) {
       const title = document.createElement('h3');
       title.style.fontSize = '12px';
@@ -982,7 +950,6 @@
       const rankContainer = document.createElement('div');
       rankContainer.className = 'ranking-list';
 
-      // Transformar objeto en arreglo y ordenar de mayor a menor cumplimiento
       const arr = Object.keys(allUsers).map(k => {
         const u = allUsers[k];
         const metCount = Object.values(u.days || {}).filter(v => v >= u.goal).length;
@@ -997,7 +964,7 @@
         arr.forEach((item, index) => {
           const itemEl = document.createElement('div');
           itemEl.className = 'rank-item';
-          // Resaltar medallas si están en el top 3
+          
           let trophy = index + 1;
           if (index === 0) trophy = '🥇';
           else if (index === 1) trophy = '🥈';
@@ -1017,10 +984,10 @@
     }
 
     // =========================================================================
-    // MODALES FLOTANTES DE CONFIRMACIÓN CORREGIDOS INTERACTIVOS
+    // MODALES FLOTANTES DE CONFIRMACIÓN
     // =========================================================================
     function openModal(title, msg, onConfirmClick) {
-      console.log("-> Lanzando modal modal-overlay... Visibilidad verificada via CSS z-index.");
+      console.log("-> Lanzando modal modal-overlay interactivo.");
       const modalWrap = document.getElementById('modal-container');
       modalWrap.innerHTML = `
         <div class="modal-overlay">
