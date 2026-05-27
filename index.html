@@ -212,8 +212,13 @@
     .viewing-header {
       display: flex;
       align-items: center;
-      gap: 8px;
+      justify-content: space-between;
       margin-bottom: 16px;
+    }
+    .viewing-header-left {
+      display: flex;
+      align-items: center;
+      gap: 8px;
     }
     .btn-back {
       background: #fff;
@@ -222,6 +227,19 @@
       border-radius: 6px;
       font-size: 12px;
       cursor: pointer;
+    }
+    .btn-action-profile {
+      background: #2563eb;
+      color: white;
+      border: none;
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .btn-action-profile:hover {
+      background: #1d4ed8;
     }
     .indicators-grid {
       display: flex;
@@ -437,7 +455,7 @@
       color: #2563eb;
     }
 
-    /* ── CONFIRM MODAL OVERLAY CORREGIDO (z-index crítico) ── */
+    /* Modals */
     .modal-overlay {
       position: fixed;
       inset: 0;
@@ -534,9 +552,7 @@
   <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
 
   <script>
-    // =========================================================================
-    // CONFIGURACIÓN DE FIREBASE CORREGIDA CON TU URL REAL (e1ed6)
-    // =========================================================================
+    // Configuración de Firebase Realtime Database
     const firebaseConfig = {
       databaseURL: "https://water-challenge-e1ed6-default-rtdb.firebaseio.com/" 
     };
@@ -544,9 +560,7 @@
     const app = firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
 
-    // =========================================================================
-    // ESTADO Y CONFIGURACIÓN DEL RETO (Fecha fijada a Hoy: 27 de Mayo de 2026)
-    // =========================================================================
+    // Estado global de la aplicación (Fecha por defecto: 27 de Mayo de 2026)
     let START = new Date('2026-05-27'); 
     START.setHours(0,0,0,0); 
 
@@ -557,13 +571,18 @@
 
     db.ref('users').on('value', (snapshot) => {
       allUsers = snapshot.val() || {};
-      console.log("-> Datos sincronizados desde Firebase:", allUsers);
+      console.log("-> Sincronización Realtime:", allUsers);
       render();
     });
 
-    // =========================================================================
-    // SERVICIOS / MÉTODOS DE BASE DE DATOS
-    // =========================================================================
+    db.ref('config/startDate').on('value', (snapshot) => {
+      if(snapshot.val()) {
+        START = new Date(snapshot.val() + 'T00:00:00');
+        render();
+      }
+    });
+
+    // Operaciones Base de Datos
     async function registerUser(id, name, goal) {
       await db.ref('users/' + id).set({ name, goal, days: {} });
     }
@@ -584,15 +603,14 @@
       await db.ref('config').update(configObj);
     }
 
-    db.ref('config/startDate').on('value', (snapshot) => {
-      if(snapshot.val()) {
-        START = new Date(snapshot.val() + 'T00:00:00');
-      }
-    });
+    // Cambiar activamente la sesión al perfil seleccionado
+    function loginAsUser(id) {
+      myId = id;
+      sessionStorage.setItem('wc_myid', id);
+      showToast(`¡Sesión iniciada como ${allUsers[id].name}! 💧`);
+      render();
+    }
 
-    // =========================================================================
-    // LÓGICA DE NAVEGACIÓN Y ACCIONES
-    // =========================================================================
     function switchTab(tab) {
       currentTab = tab;
       viewingId = null;
@@ -633,49 +651,40 @@
     }
 
     function logout() {
-      console.clear();
-      console.log("-> Cerrando sesión del usuario actual...");
       sessionStorage.removeItem('wc_myid');
       myId = null;
       viewingId = null;
       currentTab = 'users';
       render();
+      showToast("Cerraste sesión.");
     }
 
-    // =========================================================================
-    // REINICIOS Y CONFIGURACIÓN CON REFRESCO
-    // =========================================================================
     async function resetMyChallenge() {
-      console.log("-> Confirmación recibida. Limpiando historial en Firebase...");
       showToast('Reiniciando...');
       try {
         await resetUserDays(myId);
         if(allUsers[myId]) allUsers[myId].days = {};
         closeModal();
-        showToast('¡Reto reiniciado! Días limpios 💪');
-        setTimeout(() => { location.reload(); }, 800);
+        showToast('¡Reto reiniciado!');
+        setTimeout(() => { location.reload(); }, 500);
       } catch(e) {
-        console.error(e);
         showToast('Error al reiniciar.');
       }
     }
 
     async function applyNewStartDate(dateStr) {
-      console.log("-> Sincronizando nueva fecha global:", dateStr);
       showToast('Guardando...');
       try {
         await saveConfig({ startDate: dateStr });
         START = new Date(dateStr + 'T00:00:00');
-        showToast('✅ Fecha de inicio actualizada.');
-        setTimeout(() => { location.reload(); }, 800);
+        showToast('Fecha de inicio actualizada.');
+        setTimeout(() => { location.reload(); }, 500);
       } catch(e) {
-        console.error(e);
         showToast('Error al cambiar la fecha.');
       }
     }
 
     async function confirmDeleteProfile() {
-      console.log("-> Eliminando perfil de la base de datos...");
       try {
         await deleteUserProfile(myId);
         sessionStorage.removeItem('wc_myid');
@@ -683,16 +692,13 @@
         viewingId = null;
         closeModal();
         showToast('Perfil eliminado.');
-        setTimeout(() => { location.reload(); }, 800);
+        setTimeout(() => { location.reload(); }, 500);
       } catch(e) {
-        console.error(e);
         showToast('Error al eliminar.');
       }
     }
 
-    // =========================================================================
-    // RENDERIZADO VISUAL DINÁMICO
-    // =========================================================================
+    // Renderizado UI
     function render() {
       const wrap = document.getElementById('main-content');
       wrap.innerHTML = '';
@@ -824,10 +830,25 @@
 
       const viewHeader = document.createElement('div');
       viewHeader.className = 'viewing-header';
-      viewHeader.innerHTML = `
+      
+      // Bloque izquierdo con botón volver y nombre
+      const leftPart = document.createElement('div');
+      leftPart.className = 'viewing-header-left';
+      leftPart.innerHTML = `
         <button class="btn-back" onclick="switchTab('users')">← Volver</button>
-        <span style="font-size:13px; font-weight:600; text-transform:capitalize; margin-left:8px;">Perfil de ${u.name}</span>
+        <span style="font-size:13px; font-weight:600; text-transform:capitalize; margin-left:4px;">Perfil de ${u.name}</span>
       `;
+      viewHeader.appendChild(leftPart);
+
+      // Si NO es mi perfil activo, añadir botón para iniciar sesión en él
+      if (userId !== myId) {
+        const btnLogin = document.createElement('button');
+        btnLogin.className = 'btn-action-profile';
+        btnLogin.innerText = "🔑 Usar este perfil";
+        btnLogin.onclick = () => loginAsUser(userId);
+        viewHeader.appendChild(btnLogin);
+      }
+
       wrap.appendChild(viewHeader);
 
       const indGrid = document.createElement('div');
@@ -983,11 +1004,8 @@
       wrap.appendChild(rankContainer);
     }
 
-    // =========================================================================
-    // MODALES FLOTANTES DE CONFIRMACIÓN
-    // =========================================================================
+    // Modales de Confirmación
     function openModal(title, msg, onConfirmClick) {
-      console.log("-> Lanzando modal modal-overlay interactivo.");
       const modalWrap = document.getElementById('modal-container');
       modalWrap.innerHTML = `
         <div class="modal-overlay">
@@ -1034,9 +1052,7 @@
       );
     }
 
-    // =========================================================================
-    // UTILIDADES AUXILIARES
-    // =========================================================================
+    // Utilidades
     function getLocalDateString(dateObj) {
       const y = dateObj.getFullYear();
       const m = String(dateObj.getMonth() + 1).padStart(2, '0');
