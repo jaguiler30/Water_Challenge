@@ -1,642 +1,1088 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Water Challenge 💧</title>
-  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet" />
+  
+  <!-- Estilos CSS Embebidos Completos -->
   <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    :root {
-      --blue: #378ADD; --blue-light: #E6F1FB; --blue-dark: #0C447C; --blue-mid: #185FA5;
-      --bg: #f5f7fa; --surface: #ffffff; --border: rgba(0,0,0,0.1);
-      --text: #1a1a1a; --muted: #6b7280; --radius: 12px; --radius-sm: 8px;
+    *, *::before, *::after {
+      box-sizing: border-box;
     }
-    body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
-    button { font-family: inherit; cursor: pointer; border: 1px solid var(--border); background: var(--surface); color: var(--text); border-radius: var(--radius-sm); padding: 9px 16px; font-size: 14px; font-weight: 500; transition: all 0.15s; }
-    button:hover { background: #f0f4f8; }
-    button.primary { background: var(--blue); color: #fff; border-color: var(--blue); }
-    button.primary:hover { background: var(--blue-mid); }
-    input, select { font-family: inherit; font-size: 14px; border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 9px 12px; width: 100%; background: var(--surface); color: var(--text); outline: none; transition: border 0.15s; }
-    input:focus, select:focus { border-color: var(--blue); box-shadow: 0 0 0 3px rgba(55,138,221,0.15); }
+    
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background-color: #f0f7ff;
+      color: #1e293b;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      min-height: 100vh;
+      padding: 24px 12px;
+    }
 
-    .page { max-width: 560px; margin: 0 auto; padding: 24px 16px 60px; }
-    .header { text-align: center; margin-bottom: 28px; }
-    .header h1 { font-size: 26px; font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 10px; }
-    .header p { font-size: 14px; color: var(--muted); margin-top: 6px; }
+    .app-container {
+      width: 100%;
+      max-width: 500px;
+      background: #ffffff;
+      border-radius: 16px;
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
+      padding: 20px;
+    }
 
-    .tab-bar { display: flex; gap: 4px; background: #eef0f4; border-radius: var(--radius); padding: 4px; margin-bottom: 20px; }
-    .tab { flex: 1; padding: 9px; text-align: center; border: none; background: transparent; border-radius: var(--radius-sm); font-size: 13px; font-weight: 500; color: var(--muted); }
-    .tab.active { background: var(--surface); color: var(--text); box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+    /* Header */
+    .header-section {
+      text-align: center;
+      margin-bottom: 24px;
+    }
+    .header-section h1 {
+      font-size: 24px;
+      margin: 0 0 4px 0;
+      color: #1d4ed8;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+    .header-section p {
+      font-size: 13px;
+      color: #64748b;
+      margin: 0;
+    }
 
-    .card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; }
+    /* Tabs Nav */
+    .tabs-nav {
+      display: flex;
+      background: #f1f5f9;
+      padding: 4px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      gap: 4px;
+    }
+    .tab-btn {
+      flex: 1;
+      background: none;
+      border: none;
+      padding: 8px;
+      font-size: 13px;
+      font-weight: 500;
+      color: #64748b;
+      cursor: pointer;
+      border-radius: 6px;
+      transition: all 0.2s;
+    }
+    .tab-btn.active {
+      background: #ffffff;
+      color: #1e293b;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
 
-    .notice { background: #eff6ff; border: 1px solid #bfdbfe; border-radius: var(--radius-sm); padding: 10px 14px; font-size: 13px; color: #1d4ed8; margin-bottom: 16px; }
-    .form-field { margin-bottom: 14px; }
-    .form-field label { font-size: 12px; font-weight: 500; color: var(--muted); display: block; margin-bottom: 5px; text-transform: uppercase; letter-spacing: 0.04em; }
-    .color-row { display: flex; gap: 8px; padding: 4px 0; }
-    .cdot.sel { border-color: #1a1a1a; transform: scale(1.2); }
-    .existing-users { margin-top: 20px; padding-top: 16px; border-top: 1px solid var(--border); }
-    .existing-users p { font-size: 12px; color: var(--muted); margin-bottom: 10px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.04em; }
-    .user-pill { display: inline-flex; align-items: center; gap: 6px; padding: 5px 12px; border-radius: 99px; border: 1px solid var(--border); cursor: pointer; margin: 3px; font-size: 13px; background: var(--surface); color: var(--text); }
-    .user-pill:hover { border-color: var(--blue); background: var(--blue-light); }
-    .dot-sm { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+    /* Auth & Join Section */
+    .auth-box {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      padding: 16px;
+      text-align: center;
+      margin-bottom: 16px;
+    }
+    .auth-box h3 {
+      margin: 0 0 12px 0;
+      font-size: 16px;
+    }
+    .form-group {
+      margin-bottom: 12px;
+      text-align: left;
+    }
+    .form-group label {
+      display: block;
+      font-size: 12px;
+      font-weight: 600;
+      margin-bottom: 4px;
+      color: #475569;
+    }
+    .form-control, select {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #cbd5e1;
+      border-radius: 8px;
+      font-size: 14px;
+      background-color: #fff;
+    }
+    .btn-primary {
+      width: 100%;
+      background: #2563eb;
+      color: white;
+      border: none;
+      padding: 10px;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .btn-primary:hover {
+      background: #1d4ed8;
+    }
 
-    .banner { background: var(--blue-light); border: 1px solid #bfdbfe; border-radius: var(--radius); padding: 12px 16px; margin-bottom: 16px; display: flex; align-items: center; gap: 12px; }
-    .banner .av { width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 600; flex-shrink: 0; }
-    .banner .info { flex: 1; }
-    .banner .bname { font-size: 14px; font-weight: 600; }
-    .banner .bsub { font-size: 12px; color: var(--blue-dark); }
-    .banner button { font-size: 12px; padding: 5px 10px; color: var(--muted); }
+    /* User List & Profiles */
+    .user-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .user-card {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px;
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      cursor: pointer;
+    }
+    .user-card:hover {
+      background: #f1f5f9;
+    }
+    .user-info {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .avatar {
+      width: 36px;
+      height: 36px;
+      background: #dbeafe;
+      color: #2563eb;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      font-size: 14px;
+      text-transform: uppercase;
+    }
+    .user-details h4 {
+      margin: 0;
+      font-size: 14px;
+      text-transform: capitalize;
+    }
+    .user-details p {
+      margin: 2px 0 0 0;
+      font-size: 11px;
+      color: #64748b;
+    }
 
-    .users-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(148px, 1fr)); gap: 12px; }
-    .ucard { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px; cursor: pointer; transition: all 0.12s; }
-    .ucard:hover { border-color: var(--blue); box-shadow: 0 2px 8px rgba(55,138,221,0.15); transform: translateY(-1px); }
-    .ucard.me { border: 2px solid var(--blue); }
-    .ucard .av { width: 42px; height: 42px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 15px; font-weight: 600; margin-bottom: 10px; }
-    .ucard .uname { font-size: 14px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .ucard .uprog { font-size: 12px; color: var(--muted); margin-top: 3px; }
-    .pbar { height: 5px; background: #e5e7eb; border-radius: 99px; margin-top: 8px; overflow: hidden; }
-    .pfill { height: 100%; border-radius: 99px; background: var(--blue); transition: width 0.4s; }
+    /* Active User View Profile Banner */
+    .profile-banner {
+      background: #e0f2fe;
+      border: 1px solid #bae6fd;
+      border-radius: 12px;
+      padding: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 16px;
+    }
+    .profile-banner-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .btn-logout {
+      background: #fff;
+      color: #dc2626;
+      border: 1px solid #fca5a5;
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      transition: background 0.2s;
+    }
+    .btn-logout:hover {
+      background: #fef2f2;
+    }
 
-    .det-header { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; }
-    .det-header .av { width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 16px; font-weight: 600; flex-shrink: 0; }
-    .stats-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 20px; }
-    .sbox { background: #f8fafc; border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 14px; text-align: center; }
-    .snum { font-size: 24px; font-weight: 600; color: var(--blue-dark); }
-    .slbl { font-size: 11px; color: var(--muted); margin-top: 3px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.04em; }
-    .log-card { background: var(--blue-light); border: 1px solid #bfdbfe; border-radius: var(--radius); padding: 16px; margin-bottom: 20px; }
-    .log-card h3 { font-size: 13px; font-weight: 600; color: var(--blue-dark); margin-bottom: 10px; text-transform: uppercase; letter-spacing: 0.04em; }
-    .log-row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
-    .log-row select { flex: 1; min-width: 160px; }
-    .sec-title { font-size: 13px; font-weight: 600; color: var(--muted); margin-bottom: 10px; text-transform: uppercase; letter-spacing: 0.04em; }
-    .legend { display: flex; gap: 14px; margin-bottom: 12px; flex-wrap: wrap; }
-    .leg { display: flex; align-items: center; gap: 5px; font-size: 12px; color: var(--muted); }
-    .legsq { width: 13px; height: 13px; border-radius: 3px; }
-    .day-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(38px, 1fr)); gap: 5px; }
-    .dcell { aspect-ratio: 1; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 600; border: 1px solid #e5e7eb; background: #f3f4f6; color: var(--muted); }
-    .dcell.done { background: #B5D4F4; color: #0C447C; border-color: #93c5fd; }
-    .dcell.partial { background: #fed7aa; color: #92400e; border-color: #fdba74; }
-    .dcell.today { border: 2px solid var(--blue); box-shadow: 0 0 0 2px rgba(55,138,221,0.2); }
-    .dcell.future { opacity: 0.3; }
+    /* Dashboard Header Indicators */
+    .viewing-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+    .btn-back {
+      background: #fff;
+      border: 1px solid #cbd5e1;
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-size: 12px;
+      cursor: pointer;
+    }
+    .indicators-grid {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+    .ind-card {
+      flex: 1;
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      padding: 10px;
+      text-align: center;
+    }
+    .ind-val {
+      font-size: 18px;
+      font-weight: bold;
+      color: #0f172a;
+    }
+    .ind-lbl {
+      font-size: 9px;
+      color: #64748b;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-top: 2px;
+    }
 
-    .lb-item { display: flex; align-items: center; gap: 12px; padding: 12px 14px; border-radius: var(--radius); margin-bottom: 8px; border: 1px solid var(--border); background: var(--surface); }
-    .lb-item.me { border: 2px solid var(--blue); background: var(--blue-light); }
-    .lb-rank { font-size: 18px; width: 28px; text-align: center; flex-shrink: 0; }
-    .lb-av { width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 600; flex-shrink: 0; }
-    .lb-info { flex: 1; min-width: 0; }
-    .lb-name { font-size: 14px; font-weight: 600; }
-    .lb-sub { font-size: 12px; color: var(--muted); }
-    .lb-score { font-size: 18px; font-weight: 600; color: var(--blue); }
+    /* Log Intake Panel */
+    .intake-box {
+      background: #eff6ff;
+      border: 1px solid #bfdbfe;
+      border-radius: 12px;
+      padding: 14px;
+      margin-bottom: 20px;
+    }
+    .intake-title {
+      font-size: 11px;
+      font-weight: bold;
+      color: #1e40af;
+      margin-bottom: 8px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .intake-row {
+      display: flex;
+      gap: 8px;
+    }
+    .btn-save-intake {
+      background: #2563eb;
+      color: white;
+      border: none;
+      padding: 0 16px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+    }
 
-    .loading { text-align: center; padding: 40px 20px; color: var(--muted); font-size: 15px; }
-    .spinner { display: inline-block; width: 22px; height: 22px; border: 3px solid #e5e7eb; border-top-color: var(--blue); border-radius: 50%; animation: spin 0.7s linear infinite; vertical-align: middle; margin-right: 8px; }
-    @keyframes spin { to { transform: rotate(360deg); } }
-    .empty { text-align: center; padding: 32px; color: var(--muted); font-size: 14px; }
-    .toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); background: #1a1a1a; color: #fff; padding: 10px 20px; border-radius: 99px; font-size: 14px; font-weight: 500; opacity: 0; transition: opacity 0.3s; pointer-events: none; z-index: 999; white-space: nowrap; }
-    .toast.show { opacity: 1; }
-    .back-btn { background: none; border: 1px solid var(--border); padding: 7px 14px; font-size: 13px; }
-    .badge-me { display: inline-block; background: var(--blue); color: #fff; font-size: 10px; font-weight: 600; padding: 2px 6px; border-radius: 99px; margin-left: 4px; vertical-align: middle; }
-    .readonly-note { background: #f8fafc; border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 10px 14px; font-size: 13px; color: var(--muted); margin-bottom: 20px; }
-    .error-box { background: #fef2f2; border: 1px solid #fca5a5; border-radius: var(--radius-sm); padding: 12px 16px; font-size: 13px; color: #991b1b; margin-bottom: 16px; }
+    /* Calendar Grid */
+    .calendar-section h3 {
+      font-size: 12px;
+      color: #475569;
+      margin: 0 0 8px 0;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .legend {
+      display: flex;
+      gap: 12px;
+      font-size: 11px;
+      color: #64748b;
+      margin-bottom: 12px;
+    }
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 3px;
+    }
+    .dot.done { background: #93c5fd; border: 1px solid #60a5fa; }
+    .dot.under { background: #fed7aa; border: 1px solid #f97316; }
+    .dot.none { background: #f1f5f9; border: 1px solid #e2e8f0; }
 
-    button.danger { background: #fff; color: #dc2626; border-color: #fca5a5; }
-    button.danger:hover { background: #fef2f2; border-color: #f87171; }
-    button.danger-solid { background: #dc2626; color: #fff; border-color: #dc2626; }
-    button.danger-solid:hover { background: #b91c1c; }
+    .grid-30 {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      gap: 6px;
+      margin-bottom: 24px;
+    }
+    .day-cell {
+      aspect-ratio: 1;
+      border-radius: 6px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      font-weight: 500;
+      color: #94a3b8;
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+    }
+    .day-cell.active-day {
+      border: 2px solid #2563eb !important;
+      color: #1e293b;
+      font-weight: bold;
+    }
+    .day-cell.status-done {
+      background: #dbeafe;
+      border-color: #93c5fd;
+      color: #1e40af;
+    }
+    .day-cell.status-under {
+      background: #ffedd5;
+      border-color: #fed7aa;
+      color: #9a3412;
+    }
+    .day-val {
+      font-size: 8px;
+      margin-top: 1px;
+      opacity: 0.8;
+    }
 
-    .settings-section { margin-top: 24px; padding-top: 16px; border-top: 1px solid var(--border); }
-    .settings-title { font-size: 13px; font-weight: 600; color: var(--muted); margin-bottom: 12px; text-transform: uppercase; letter-spacing: 0.04em; }
-    .settings-row { display: flex; gap: 8px; align-items: center; margin-bottom: 10px; flex-wrap: wrap; }
-    .settings-row label { font-size: 13px; color: var(--text); flex: 1; min-width: 140px; }
+    /* Settings Options */
+    .settings-section {
+      border-top: 1px solid #e2e8f0;
+      padding-top: 16px;
+      margin-top: 16px;
+    }
+    .settings-section h3 {
+      font-size: 11px;
+      color: #64748b;
+      margin: 0 0 12px 0;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .setting-item {
+      margin-bottom: 12px;
+    }
+    .setting-row {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+    .btn-secondary {
+      background: #fff;
+      border: 1px solid #cbd5e1;
+      padding: 10px 14px;
+      border-radius: 8px;
+      font-size: 13px;
+      cursor: pointer;
+    }
+    .action-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 12px;
+      color: #64748b;
+      margin-bottom: 10px;
+    }
+    .btn-danger-outline {
+      background: #fff;
+      color: #dc2626;
+      border: 1px solid #fca5a5;
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 500;
+      cursor: pointer;
+    }
+    .btn-danger-outline:hover {
+      background: #fef2f2;
+    }
 
+    /* Ranking view */
+    .ranking-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .rank-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 12px;
+      background: #f8fafc;
+      border-radius: 8px;
+      border: 1px solid #e2e8f0;
+    }
+    .rank-left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .rank-num {
+      font-weight: bold;
+      font-size: 14px;
+      color: #64748b;
+      width: 20px;
+    }
+    .rank-name {
+      font-size: 13px;
+      font-weight: 500;
+      text-transform: capitalize;
+    }
+    .rank-score {
+      font-size: 13px;
+      font-weight: bold;
+      color: #2563eb;
+    }
+
+    /* ── CONFIRM MODAL OVERLAY CORREGIDO (z-index crítico) ── */
     .modal-overlay {
-    position: fixed; 
-    inset: 0; 
-    background: rgba(0,0,0,0.5); /* Oscurece el fondo un poco más */
-    z-index: 99999;               /* OBLIGA al modal a estar por encima de TODO */
-    display: flex; 
-    align-items: center; 
-    justify-content: center; 
-    padding: 16px;}    
-    .modal-box { background: var(--surface); border-radius: var(--radius); padding: 24px; max-width: 380px; width: 100%; box-shadow: 0 8px 32px rgba(0,0,0,0.18); }
-    .modal-box h3 { font-size: 17px; font-weight: 600; margin-bottom: 8px; }
-    .modal-box p { font-size: 14px; color: var(--muted); margin-bottom: 20px; line-height: 1.5; }
-    .modal-actions { display: flex; gap: 8px; justify-content: flex-end; }
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.6);
+      backdrop-filter: blur(2px);
+      z-index: 99999; /* Asegura visualización completa sobre cualquier componente */
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+    }
+    .modal-box {
+      background: #ffffff;
+      border-radius: 14px;
+      width: 100%;
+      max-width: 340px;
+      padding: 20px;
+      box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1);
+      text-align: center;
+    }
+    .modal-box h4 {
+      margin: 0 0 8px 0;
+      font-size: 16px;
+      color: #0f172a;
+    }
+    .modal-box p {
+      margin: 0 0 20px 0;
+      font-size: 13px;
+      color: #64748b;
+      line-height: 1.4;
+    }
+    .modal-actions {
+      display: flex;
+      gap: 8px;
+    }
+    .modal-btn {
+      flex: 1;
+      padding: 9px;
+      font-size: 13px;
+      font-weight: 600;
+      border-radius: 6px;
+      cursor: pointer;
+      border: none;
+    }
+    .modal-btn.cancel {
+      background: #f1f5f9;
+      color: #475569;
+    }
+    .modal-btn.confirm {
+      background: #dc2626;
+      color: #ffffff;
+    }
 
-    .date-picker-row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
-    .date-picker-row input[type=date] { flex: 1; min-width: 160px; }
+    /* Toast notification */
+    .toast {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #0f172a;
+      color: white;
+      padding: 10px 16px;
+      border-radius: 30px;
+      font-size: 12px;
+      font-weight: 500;
+      z-index: 100000;
+      box-shadow: 0 10px 15px -3px rgba(0,0,0,0.3);
+      display: none;
+    }
   </style>
 </head>
 <body>
-<div class="page">
-  <div class="header">
-    <h1>💧 Water Challenge</h1>
-    <p>Reto de hidratación grupal · 30 días</p>
+
+  <div class="app-container">
+    
+    <!-- Encabezado General -->
+    <div class="header-section">
+      <h1>💧 Water Challenge</h1>
+      <p>Reto de hidratación grupal • 30 días</p>
+    </div>
+
+    <!-- Navegación de Pestañas -->
+    <div class="tabs-nav">
+      <button class="tab-btn active" id="tab-users" onclick="switchTab('users')">👥 Participantes</button>
+      <button class="tab-btn" id="tab-ranking" onclick="switchTab('ranking')">🏅 Ranking</button>
+    </div>
+
+    <!-- Contenedor Dinámico Principal -->
+    <div id="main-content"></div>
+
   </div>
-  <div id="app-content">
-    <div class="loading"><span class="spinner"></span> Conectando...</div>
-  </div>
-</div>
-<div class="toast" id="toast"></div>
-<div id="modal-container"></div>
 
-<script>
-// ═══════════════════════════════════════════
-//   🔧 CREDENCIALES FIREBASE — ya configuradas
-// ═══════════════════════════════════════════
-const FB_URL     = "https://water-challenge-e1ed6-default-rtdb.firebaseio.com";
-const FB_API_KEY = "AIzaSyACJIVPrpqnc7NcnzDPTLhJmQwl2ST6bFA";
+  <!-- Contenedor para inyección de Modales -->
+  <div id="modal-container"></div>
+  
+  <!-- Notificaciones Toast -->
+  <div id="toast" class="toast"></div>
 
-// ═══════════════════════════════════════════
-//   CONFIGURACIÓN DEL RETO
-// ═══════════════════════════════════════════
-const TOTAL = 30;
-let START = new Date('2026-05-26'); START.setHours(0,0,0,0);
+  <!-- CDNs de Firebase v9 (Compatibilidad/Módulos) -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
 
-const COLORS = [
-  {bg:'#BFDBFE',tx:'#1e3a5f'},
-  {bg:'#A7F3D0',tx:'#064e3b'},
-  {bg:'#FCA5A5',tx:'#7f1d1d'},
-  {bg:'#F9A8D4',tx:'#831843'},
-  {bg:'#C4B5FD',tx:'#3b0764'},
-  {bg:'#FDE68A',tx:'#78350f'},
-];
+  <script>
+    // =========================================================================
+    // CONFIGURACIÓN DE FIREBASE (¡MANTÉN TUS CREDENCIALES ACTUALES AQUÍ!)
+    // =========================================================================
+    const firebaseConfig = {
+      databaseURL: "https://water-challenge-8cb7e-default-rtdb.firebaseio.com/" 
+    };
+    
+    // Inicializar Firebase
+    const app = firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
 
-let myId = sessionStorage.getItem('wc_myid') || null;
-let allUsers = {};
-let viewingId = null;
-let currentTab = 'users';
-let selColor = 0;
+    // =========================================================================
+    // ESTADO Y CONFIGURACIÓN DEL RETO (Fecha fijada a Hoy: 27 de Mayo de 2026)
+    // =========================================================================
+    let START = new Date('2026-05-27'); 
+    START.setHours(0,0,0,0); // Forzar inicio limpio a las 00:00 del día de hoy
 
-// ═══════════════════════════════════════════
-//   FIREBASE REST
-// ═══════════════════════════════════════════
-function fbUrl(path) {
-  return `${FB_URL}/${path}.json?key=${FB_API_KEY}`;
-}
-async function fbGet(path) {
-  const r = await fetch(fbUrl(path));
-  if (!r.ok) throw new Error('Error al leer datos (' + r.status + ')');
-  return r.json();
-}
-async function fbSet(path, data) {
-  const r = await fetch(fbUrl(path), {
-    method: 'PUT', headers: {'Content-Type':'application/json'}, body: JSON.stringify(data)
-  });
-  if (!r.ok) throw new Error('Error al guardar (' + r.status + ')');
-  return r.json();
-}
-async function fbPatch(path, data) {
-  const r = await fetch(fbUrl(path), {
-    method: 'PATCH', headers: {'Content-Type':'application/json'}, body: JSON.stringify(data)
-  });
-  if (!r.ok) throw new Error('Error al actualizar (' + r.status + ')');
-  return r.json();
-}
+    let myId = sessionStorage.getItem('wc_myid') || null;
+    let viewingId = null; 
+    let currentTab = 'users'; 
+    let allUsers = {};
 
-// ═══════════════════════════════════════════
-//   HELPERS
-// ═══════════════════════════════════════════
-function todayIdx() {
-  const now = new Date(); now.setHours(0,0,0,0);
-  return Math.max(0, Math.min(TOTAL-1, Math.floor((now - START) / 86400000)));
-}
-function initials(name) {
-  return (name||'?').trim().split(/\s+/).map(w=>w[0]||'').join('').slice(0,2).toUpperCase();
-}
-function showToast(msg) {
-  const t = document.getElementById('toast');
-  t.textContent = msg;
-  t.classList.add('show');
-  setTimeout(() => t.classList.remove('show'), 2400);
-}
-function fmtGoal(ml) { return ml >= 1000 ? (ml/1000)+'L' : ml+'ml'; }
+    // Escucha en tiempo real de la base de datos
+    db.ref('users').on('value', (snapshot) => {
+      allUsers = snapshot.val() || {};
+      console.log("-> Datos sincronizados desde Firebase:", allUsers);
+      render();
+    });
 
-// ═══════════════════════════════════════════
-//   DATA
-// ═══════════════════════════════════════════
-async function loadUsers() {
-  try {
-    const data = await fbGet('users');
-    allUsers = data || {};
-  } catch(e) {
-    allUsers = {};
-    document.getElementById('app-content').innerHTML =
-      `<div class="error-box">⚠️ No se pudo conectar a Firebase.<br><small>${e.message}</small><br><br>
-       Revisa que la base de datos esté en <strong>modo de prueba</strong> en la consola de Firebase.</div>`;
-    throw e;
-  }
-}
-async function saveUser(id, data) { await fbSet(`users/${id}`, data); }
-async function deleteUserFromDB(id) {
-  const r = await fetch(fbUrl(`users/${id}`), { method: 'DELETE' });
-  if (!r.ok) throw new Error('Error al eliminar (' + r.status + ')');
-}
-async function resetUserDays(id) {
-  await fbPatch(`users/${id}`, { days: {} });
-}
-async function loadConfig() {
-  try {
-    const cfg = await fbGet('config');
-    if (cfg && cfg.startDate) {
-      START = new Date(cfg.startDate); START.setHours(0,0,0,0);
+    // =========================================================================
+    // SERVICIOS / MÉTODOS DE BASE DE DATOS
+    // =========================================================================
+    async function registerUser(id, name, goal) {
+      await db.ref('users/' + id).set({ name, goal, days: {} });
     }
-  } catch(e) { /* use default */ }
-}
-async function saveConfig(cfg) { await fbPatch('config', cfg); }
-async function patchDay(id, dayIdx, amount) {
-  await fbPatch(`users/${id}/days`, { [dayIdx]: amount });
-  if (!allUsers[id].days) allUsers[id].days = {};
-  allUsers[id].days[dayIdx] = amount;
-}
 
-// ═══════════════════════════════════════════
-//   RENDER
-// ═══════════════════════════════════════════
-function render() {
-  const wrap = document.getElementById('app-content');
-  if (!myId || !allUsers[myId]) { renderAuth(wrap); return; }
+    async function saveIntake(userId, dateStr, amount) {
+      await db.ref(`users/${userId}/days/${dateStr}`).set(amount);
+    }
 
-  const me = allUsers[myId];
-  const tabs = `<div class="tab-bar">
-    <button class="tab ${currentTab==='users'?'active':''}" onclick="switchTab('users')">👥 Participantes</button>
-    <button class="tab ${currentTab==='leaderboard'?'active':''}" onclick="switchTab('leaderboard')">🏆 Ranking</button>
-  </div>`;
+    async function resetUserDays(userId) {
+      await db.ref(`users/${userId}/days`).remove();
+    }
 
-  const banner = `<div class="banner">
-    <div class="av" style="background:${me.color.bg};color:${me.color.tx}">${initials(me.name)}</div>
-    <div class="info">
-      <div class="bname">${me.name}</div>
-      <div class="bsub">Meta: ${fmtGoal(me.goal)} por día · Día ${Math.min(todayIdx()+1, TOTAL)} de ${TOTAL}</div>
-    </div>
-    <button onclick="logout()" style="color: #dc2626; border-color: #fca5a5;">🚪 Salir</button>
-  </div>`;
+    async function deleteUserProfile(userId) {
+      await db.ref(`users/${userId}`).remove();
+    }
 
-  if (currentTab === 'users') {
-    wrap.innerHTML = tabs + banner + (viewingId ? renderDetail(viewingId) : renderUsers());
-  } else {
-    wrap.innerHTML = tabs + banner + renderLeaderboard();
-  }
-}
+    async function saveConfig(configObj) {
+      await db.ref('config').update(configObj);
+    }
 
-function renderAuth(wrap) {
-  const existing = Object.entries(allUsers);
-  wrap.innerHTML = `<div style="max-width:400px;margin:0 auto">
-    <div class="card">
-      <h2 style="font-size:20px;font-weight:600;margin-bottom:6px">¡Únete al reto! 💧</h2>
-      <p style="font-size:14px;color:var(--muted);margin-bottom:16px">Regístrate para llevar tu control de hidratación.</p>
-      <div class="notice">📢 Todos los participantes pueden ver el progreso del grupo.</div>
-      <div class="form-field"><label>Tu nombre</label>
-        <input type="text" id="reg-name" placeholder="Ej: Ana García" maxlength="24" onkeydown="if(event.key==='Enter')register()" />
-      </div>
-      <div class="form-field"><label>Meta diaria</label>
-        <select id="reg-goal">
-          <option value="1500">1.5 litros</option>
-          <option value="2000" selected>2 litros (recomendado)</option>
-          <option value="2500" >2.5 litros </option>
-          <option value="3000">3 litros</option>
-          <option value="3500">3.5 litros</option>
-        </select>
-      </div>
-      <div class="form-field"><label>Tu color</label>
-        <div class="color-row" id="reg-colors">
-          ${COLORS.map((c,i)=>`<div class="cdot${i===0?' sel':''}" style="background:${c.bg}" onclick="pickCol(${i})"></div>`).join('')}
+    // Escuchar cambios de configuración global en Firebase (si existen)
+    db.ref('config/startDate').on('value', (snapshot) => {
+      if(snapshot.val()) {
+        START = new Date(snapshot.val() + 'T00:00:00');
+      }
+    });
+
+    // =========================================================================
+    // LÓGICA DE NAVEGACIÓN Y ACCIONES
+    // =========================================================================
+    function switchTab(tab) {
+      currentTab = tab;
+      viewingId = null;
+      document.getElementById('tab-users').classList.toggle('active', tab === 'users');
+      document.getElementById('tab-ranking').classList.toggle('active', tab === 'ranking');
+      render();
+    }
+
+    function selectUser(id) {
+      viewingId = id;
+      render();
+    }
+
+    function handleRegister(e) {
+      e.preventDefault();
+      const name = document.getElementById('reg-name').value.trim().toLowerCase();
+      const goal = parseInt(document.getElementById('reg-goal').value, 10);
+      
+      if(!name) return showToast("Escribe un nombre válido");
+      
+      const id = name.replace(/\s+/g, '_');
+      registerUser(id, name, goal);
+      
+      myId = id;
+      sessionStorage.setItem('wc_myid', id);
+      viewingId = id;
+      showToast("¡Perfil creado con éxito! 💧");
+      render();
+    }
+
+    function handleLogIntake(e) {
+      e.preventDefault();
+      const amount = parseInt(document.getElementById('intake-amount').value, 10);
+      const todayStr = getLocalDateString(new Date());
+      
+      saveIntake(myId, todayStr, amount);
+      showToast(amount === 0 ? "Registro actualizado: Sin consumo" : `¡Registrados ${amount/1000}L de agua! 🥤`);
+    }
+
+    function logout() {
+      console.clear();
+      console.log("-> Cerrando sesión del usuario actual...");
+      sessionStorage.removeItem('wc_myid');
+      myId = null;
+      viewingId = null;
+      currentTab = 'users';
+      render();
+    }
+
+    // =========================================================================
+    // FUNCIONES REINICIO Y CONFIGURACIÓN CON REFRESCO AUTOMÁTICO (location.reload)
+    // =========================================================================
+    async function resetMyChallenge() {
+      console.log("-> Confirmación recibida. Limpiando historial en Firebase...");
+      showToast('Reiniciando...');
+      try {
+        await resetUserDays(myId);
+        if(allUsers[myId]) allUsers[myId].days = {};
+        closeModal();
+        showToast('¡Reto reiniciado! Día 1 otra vez 💪');
+        setTimeout(() => { location.reload(); }, 800);
+      } catch(e) {
+        console.error(e);
+        showToast('Error al reiniciar.');
+      }
+    }
+
+    async function applyNewStartDate(dateStr) {
+      console.log("-> Validando e inyectando nueva fecha global:", dateStr);
+      showToast('Guardando...');
+      try {
+        await saveConfig({ startDate: dateStr });
+        START = new Date(dateStr + 'T00:00:00');
+        showToast('✅ Fecha de inicio actualizada.');
+        setTimeout(() => { location.reload(); }, 800);
+      } catch(e) {
+        console.error(e);
+        showToast('Error al cambiar la fecha.');
+      }
+    }
+
+    async function confirmDeleteProfile() {
+      console.log("-> Eliminando perfil por completo de Firebase...");
+      try {
+        await deleteUserProfile(myId);
+        sessionStorage.removeItem('wc_myid');
+        myId = null;
+        viewingId = null;
+        closeModal();
+        showToast('Perfil eliminado.');
+        setTimeout(() => { location.reload(); }, 800);
+      } catch(e) {
+        console.error(e);
+        showToast('Error al eliminar.');
+      }
+    }
+
+    // =========================================================================
+    // RENDERIZADO VISUAL DINÁMICO DE LA INTERFAZ
+    // =========================================================================
+    function render() {
+      const wrap = document.getElementById('main-content');
+      wrap.innerHTML = '';
+
+      // Mostrar Banner azul superior si hay sesión activa
+      if (myId && allUsers[myId]) {
+        const me = allUsers[myId];
+        const displayGoal = me.goal >= 1000 ? (me.goal / 1000) + 'L' : me.goal + ' ml';
+        
+        // Calcular el día actual relativo en el banner
+        const diffTime = new Date().setHours(0,0,0,0) - START.getTime();
+        const calcDay = Math.max(1, Math.floor(diffTime / (1000 * 60 * 60 * 24)) + 1);
+        const bannerDay = calcDay <= 30 ? calcDay : 30;
+
+        const banner = document.createElement('div');
+        banner.className = 'profile-banner';
+        banner.innerHTML = `
+          <div class="profile-banner-left">
+            <div class="avatar">${me.name[0]}</div>
+            <div class="user-details">
+              <h4>${me.name} <span style="color:#2563eb; font-size:11px;">(Tú)</span></h4>
+              <!-- Modificación dinámica de la meta basada en tu base de datos -->
+              <p>Meta: ${displayGoal}/día • Día ${bannerDay} de 30</p>
+            </div>
+          </div>
+          <button class="btn-logout" onclick="logout()">🚪 Salir</button>
+        `;
+        wrap.appendChild(banner);
+      }
+
+      // VISTA DE RANKING
+      if (currentTab === 'ranking') {
+        renderRanking(wrap);
+        return;
+      }
+
+      // VISTA DE PARTICIPANTES O DASHBOARD INDIVIDUAL
+      if (viewingId && allUsers[viewingId]) {
+        renderDashboard(wrap, viewingId);
+      } else {
+        renderUsersList(wrap);
+      }
+    }
+
+    // Lista de todos los perfiles o Registro inicial
+    function renderUsersList(wrap) {
+      // Si no estoy registrado, forzar formulario de ingreso primero
+      if (!myId) {
+        const box = document.createElement('div');
+        box.className = 'auth-box';
+        box.innerHTML = `
+          <h3>¡Únete al Reto de Hidratación!</h3>
+          <form onsubmit="handleRegister(e)">
+            <div class="form-group">
+              <label>Tu nombre completo / apodo:</label>
+              <input type="text" id="reg-name" class="form-control" placeholder="Ej. Jhon Aguilera" required />
+            </div>
+            <div class="form-group">
+              <label>Meta de consumo diario:</label>
+              <select id="reg-goal">
+                <option value="1500">1.5 litros</option>
+                <!-- Preseleccionado por defecto el valor de 2 litros solicitado -->
+                <option value="2000" selected>2 litros (Recomendado)</option>
+                <option value="2500">2.5 litros</option>
+                <option value="3000">3 litros</option>
+                <option value="3500">3.5 litros</option>
+              </select>
+            </div>
+            <button type="submit" class="btn-primary">Unirme al reto 💧</button>
+          </form>
+        `;
+        // Pequeño hack para corregir el submit inline
+        box.querySelector('form').addEventListener('submit', handleRegister);
+        wrap.appendChild(box);
+      }
+
+      const title = document.createElement('h3');
+      title.style.fontSize = '12px';
+      title.style.margin = '16px 0 10px 0';
+      title.style.color = '#64748b';
+      title.style.textTransform = 'uppercase';
+      title.innerText = "Miembros participando:";
+      wrap.appendChild(title);
+
+      const listContainer = document.createElement('div');
+      listContainer.className = 'user-list';
+
+      const keys = Object.keys(allUsers);
+      if(keys.length === 0) {
+        listContainer.innerHTML = `<p style="font-size:13px; color:#64748b; text-align:center; padding:12px;">No hay perfiles aún. ¡Sé el primero!</p>`;
+      } else {
+        keys.forEach(k => {
+          const u = allUsers[k];
+          const daysArray = Object.values(u.days || {});
+          const metDays = daysArray.filter(v => v >= u.goal).length;
+          const displayGoal = u.goal >= 1000 ? (u.goal/1000)+'L' : u.goal+'ml';
+
+          const card = document.createElement('div');
+          card.className = 'user-card';
+          card.onclick = () => selectUser(k);
+          card.innerHTML = `
+            <div class="user-info">
+              <div class="avatar">${u.name[0]}</div>
+              <div class="user-details">
+                <h4>${u.name} ${k === myId ? '<span style="color:#2563eb; font-size:10px;">(Tú)</span>' : ''}</h4>
+                <p>Meta: ${displayGoal}/día • Días cumplidos: ${metDays}</p>
+              </div>
+            </div>
+            <span style="font-size: 16px; color: #cbd5e1;">➔</span>
+          `;
+          listContainer.appendChild(card);
+        });
+      }
+      wrap.appendChild(listContainer);
+    }
+
+    // Dashboard del Calendario de 30 días
+    function renderDashboard(wrap, userId) {
+      const u = allUsers[userId];
+      const days = u.days || {};
+      const goal = u.goal;
+
+      // Cálculos métricos
+      const daysArray = Object.values(days);
+      const daysMet = daysArray.filter(v => v >= goal).length;
+      
+      // Cálculo de racha consecutiva hacia atrás desde hoy
+      let streak = 0;
+      let d = new Date();
+      while(true) {
+        const dStr = getLocalDateString(d);
+        if(days[dStr] && days[dStr] >= goal) {
+          streak++;
+          d.setDate(d.getDate() - 1);
+        } else {
+          break;
+        }
+      }
+
+      // Progreso porcentual basado en los 30 días del reto
+      const progressPercent = Math.min(100, Math.round((daysMet / 30) * 100));
+
+      // Cabecera superior de navegación de vuelta
+      const viewHeader = document.createElement('div');
+      viewHeader.className = 'viewing-header';
+      viewHeader.innerHTML = `
+        <button class="btn-back" onclick="switchTab('users')">← Volver</button>
+        <span style="font-size:13px; font-weight:600; text-transform:capitalize;">Perfil de ${u.name}</span>
+      `;
+      wrap.appendChild(viewHeader);
+
+      // Bloque de Indicadores Numéricos
+      const indGrid = document.createElement('div');
+      indGrid.className = 'indicators-grid';
+      indGrid.innerHTML = `
+        <div class="ind-card"><div class="ind-val">${daysMet}</div><div class="ind-lbl">Días Cumplidos</div></div>
+        <div class="ind-card"><div class="ind-val">${streak}</div><div class="ind-lbl">Racha 🔥</div></div>
+        <div class="ind-card"><div class="ind-val">${progressPercent}%</div><div class="ind-lbl">Progreso</div></div>
+      `;
+      wrap.appendChild(indGrid);
+
+      // Panel de Registro diario (Solo visible si el dueño del perfil está viéndolo)
+      if (userId === myId) {
+        const todayStr = getLocalDateString(new Date());
+        const currentSavedIntake = days[todayStr] !== undefined ? days[todayStr] : -1;
+
+        const intakeBox = document.createElement('div');
+        intakeBox.className = 'intake-box';
+        
+        // Calcular número de día absoluto de hoy
+        const elapsed = Math.floor((new Date().setHours(0,0,0,0) - START.getTime()) / (1000 * 60 * 60 * 24)) + 1;
+        const currentIntakeDay = elapsed >= 1 && elapsed <= 30 ? elapsed : 30;
+
+        intakeBox.innerHTML = `
+          <div class="intake-title">💧 Registrar mi consumo de hoy (Día ${currentIntakeDay})</div>
+          <form onsubmit="handleLogIntake(e)" class="intake-row">
+            <select id="intake-amount" style="flex: 1;">
+              <option value="0" ${currentSavedIntake === 0 ? 'selected' : ''}>No tomé nada</option>
+              <option value="500" ${currentSavedIntake === 500 ? 'selected' : ''}>0.5 litros</option>
+              <option value="1000" ${currentSavedIntake === 1000 ? 'selected' : ''}>1.0 litro</option>
+              <option value="1500" ${currentSavedIntake === 1500 ? 'selected' : ''}>1.5 litros</option>
+              <option value="2000" ${currentSavedIntake === 2000 ? 'selected' : ''}>2.0 litros</option>
+              <option value="2500" ${currentSavedIntake === 2500 ? 'selected' : ''}>2.5 litros</option>
+              <option value="3000" ${currentSavedIntake === 3000 ? 'selected' : ''}>3.0 litros</option>
+              <option value="3500" ${currentSavedIntake === 3500 ? 'selected' : ''}>3.5 litros</option>
+            </select>
+            <button type="submit" class="btn-save-intake">Guardar</button>
+          </form>
+        `;
+        intakeBox.querySelector('form').addEventListener('submit', handleLogIntake);
+        wrap.appendChild(intakeBox);
+      }
+
+      // Sección de Calendario - 30 días
+      const calSection = document.createElement('div');
+      calSection.className = 'calendar-section';
+      calSection.innerHTML = `
+        <h3>📅 Calendario — 30 días</h3>
+        <div class="legend">
+          <div class="legend-item"><div class="dot done"></div> Meta cumplida</div>
+          <div class="legend-item"><div class="dot under"></div> Debajo de meta</div>
+          <div class="legend-item"><div class="dot none"></div> Sin registro</div>
         </div>
-      </div>
-      <button class="primary" onclick="register()" style="width:100%;padding:12px;font-size:15px;margin-top:4px">
-        Unirme al reto 💧
-      </button>
-      ${existing.length ? `<div class="existing-users">
-        <p>¿Ya tienes perfil? Selecciónalo:</p>
-        ${existing.map(([id,u])=>`<span class="user-pill" onclick="loginAs('${id}')">
-          <span class="dot-sm" style="background:${u.color.bg}"></span>${u.name}
-        </span>`).join('')}
-      </div>` : ''}
-    </div>
-  </div>`;
-}
+      `;
 
-function renderUsers() {
-  const entries = Object.entries(allUsers);
-  if (!entries.length) return '<div class="empty">Nadie se ha unido todavía.<br>¡Sé la primera!</div>';
-  return `<div class="users-grid">
-    ${entries.map(([id,u]) => {
-      const done = Object.values(u.days||{}).filter(v => v >= u.goal).length;
-      const pct = Math.round((done/TOTAL)*100);
-      const isMe = id === myId;
-      return `<div class="ucard${isMe?' me':''}" onclick="openDetail('${id}')">
-        <div class="av" style="background:${u.color.bg};color:${u.color.tx}">${initials(u.name)}</div>
-        <div class="uname">${u.name}${isMe?'<span class="badge-me">yo</span>':''}</div>
-        <div class="uprog">${done}/${TOTAL} días · ${pct}%</div>
-        <div class="pbar"><div class="pfill" style="width:${pct}%"></div></div>
-      </div>`;
-    }).join('')}
-  </div>`;
-}
+      const grid = document.createElement('div');
+      grid.className = 'grid-30';
 
-function renderDetail(id) {
-  const u = allUsers[id];
-  if (!u) return '';
-  const isMe = id === myId;
-  const ti = todayIdx();
-  const days = u.days || {};
-  const done = Object.values(days).filter(v => v >= u.goal).length;
-  const pct = Math.round((done/TOTAL)*100);
-  let streak = 0;
-  for (let d = ti; d >= 0; d--) {
-    if ((days[d]||0) >= u.goal) streak++;
-    else break;
-  }
-  const todayVal = days[ti] || 0;
+      const todayLocalDateStr = getLocalDateString(new Date());
 
-  const opts = [
-    [0,'No tomé nada'],
-    [500,'500 ml'],
-    [1000,'1 litro'],
-    [1500,'1.5 litros'],
-    [2000,'2 litros'],
-    [2500,'2.5 litros'],
-    [3000,'3 litros'],
-    [3500,'3.5 litros'],
-  ].map(([v,lbl]) => `<option value="${v}"${todayVal===v?' selected':''}>${lbl}${v>=u.goal&&v>0?' ✅':''}</option>`).join('');
+      // Generar celdas correspondientes a los 30 días fijados
+      for (let i = 0; i < 30; i++) {
+        let targetDate = new Date(START.getTime());
+        targetDate.setDate(targetDate.getDate() + i);
+        const dateStr = getLocalDateString(targetDate);
 
-  const logSection = isMe
-    ? `<div class="log-card">
-        <h3>💧 Registrar mi consumo de hoy (Día ${ti+1})</h3>
-        <div class="log-row">
-          <select id="log-amt">${opts}</select>
-          <button class="primary" onclick="logDay('${id}')">Guardar</button>
+        const valLog = days[dateStr];
+        let statusClass = '';
+        let displayVolume = '';
+
+        if (valLog !== undefined) {
+          displayVolume = valLog >= 1000 ? (valLog/1000)+'L' : valLog+'ml';
+          if (valLog >= goal) statusClass = 'status-done';
+          else if (valLog > 0) statusClass = 'status-under';
+        }
+
+        const isToday = (dateStr === todayLocalDateStr);
+
+        const cell = document.createElement('div');
+        cell.className = `day-cell ${statusClass} ${isToday ? 'active-day' : ''}`;
+        cell.innerHTML = `
+          <div>${i + 1}</div>
+          <div class="day-val">${displayVolume}</div>
+        `;
+        grid.appendChild(cell);
+      }
+      calSection.appendChild(grid);
+      wrap.appendChild(calSection);
+
+      // Opciones administrativas avanzadas (Solo para el dueño de la sesión)
+      if (userId === myId) {
+        const settings = document.createElement('div');
+        settings.className = 'settings-section';
+        settings.innerHTML = `
+          <h3>⚙️ Opciones del reto</h3>
+          <div class="setting-item">
+            <label style="display:block; font-size:11px; font-weight:600; color:#475569; margin-bottom:4px;">Cambiar fecha de inicio global:</label>
+            <div class="setting-row">
+              <input type="date" id="new-start-date" class="form-control" style="padding:6px;" value="${START.toISOString().split('T')[0]}" />
+              <button class="btn-secondary" style="padding:6px 12px; font-size:12px;" onclick="triggerApplyDate()">Aplicar</button>
+            </div>
+          </div>
+          <div class="action-row" style="margin-top:16px;">
+            <span>Reiniciar mi progreso a cero:</span>
+            <button class="btn-danger-outline" onclick="triggerResetModal()">Reiniciar reto</button>
+          </div>
+          <div class="action-row">
+            <span>Eliminar mi perfil por completo:</span>
+            <button class="btn-danger-outline" onclick="triggerDeleteModal()">Eliminar perfil</button>
+          </div>
+        `;
+        wrap.appendChild(settings);
+      }
+    }
+
+    // Listado de Ranking Ordenado
+    function renderRanking(wrap) {
+      const title = document.createElement('h3');
+      title.style.fontSize = '12px';
+      title.style.margin = '4px 0 12px 0';
+      title.style.color = '#64748b';
+      title.style.textTransform = 'uppercase';
+      title.innerText = "Posiciones por días completados:";
+      wrap.appendChild(title);
+
+      const rankContainer = document.createElement('div');
+      rankContainer.className = 'ranking-list';
+
+      // Transformar objeto en arreglo y ordenar de mayor a menor cumplimiento
+      const arr = Object.keys(allUsers).map(k => {
+        const u = allUsers[k];
+        const metCount = Object.values(u.days || {}).filter(v => v >= u.goal).length;
+        return { name: u.name, score: metCount, id: k };
+      });
+
+      arr.sort((a, b) => b.score - a.score);
+
+      if(arr.length === 0) {
+        rankContainer.innerHTML = `<p style="font-size:13px; color:#64748b; text-align:center; padding:12px;">Sin datos para calcular ranking.</p>`;
+      } else {
+        arr.forEach((item, index) => {
+          const itemEl = document.createElement('div');
+          itemEl.className = 'rank-item';
+          // Resaltar medallas si están en el top 3
+          let trophy = index + 1;
+          if (index === 0) trophy = '🥇';
+          else if (index === 1) trophy = '🥈';
+          else if (index === 2) trophy = '🥉';
+
+          itemEl.innerHTML = `
+            <div class="rank-left">
+              <span class="rank-num">${trophy}</span>
+              <span class="rank-name">${item.name} ${item.id === myId ? '<span style="color:#2563eb; font-size:10px;">(Tú)</span>':''}</span>
+            </div>
+            <span class="rank-score">${item.score} <span style="font-size:10px; font-weight:normal; color:#64748b;">días</span></span>
+          `;
+          rankContainer.appendChild(itemEl);
+        });
+      }
+      wrap.appendChild(rankContainer);
+    }
+
+    // =========================================================================
+    // MODALES FLOTANTES DE CONFIRMACIÓN CORREGIDOS INTERACTIVOS
+    // =========================================================================
+    function openModal(title, msg, onConfirmClick) {
+      console.log("-> Lanzando modal modal-overlay... Visibilidad verificada via CSS z-index.");
+      const modalWrap = document.getElementById('modal-container');
+      modalWrap.innerHTML = `
+        <div class="modal-overlay">
+          <div class="modal-box">
+            <h4>${title}</h4>
+            <p>${msg}</p>
+            <div class="modal-actions">
+              <button class="modal-btn cancel" onclick="closeModal()">Cancelar</button>
+              <button class="modal-btn confirm" id="modal-confirm-btn">Confirmar</button>
+            </div>
+          </div>
         </div>
-      </div>`
-    : `<div class="readonly-note">👁 Solo <strong>${u.name}</strong> puede registrar su consumo.</div>`;
+      `;
+      document.getElementById('modal-confirm-btn').onclick = onConfirmClick;
+    }
 
-  const cells = Array.from({length: TOTAL}, (_,i) => {
-    const val = days[i] || 0;
-    const isFuture = i > ti;
-    const isToday = i === ti;
-    let cls = 'dcell';
-    if (isFuture) cls += ' future';
-    else if (val >= u.goal) cls += ' done';
-    else if (val > 0) cls += ' partial';
-    if (isToday) cls += ' today';
-    const tip = val > 0 ? ` — ${val>=1000?val/1000+'L':val+'ml'}` : '';
-    return `<div class="${cls}" title="Día ${i+1}${tip}">${i+1}</div>`;
-  }).join('');
+    function closeModal() {
+      document.getElementById('modal-container').innerHTML = '';
+    }
 
-  return `<div>
-    <div class="det-header">
-      <button class="back-btn" onclick="backToList()">← Volver</button>
-      <div class="av" style="background:${u.color.bg};color:${u.color.tx};width:44px;height:44px;font-size:16px">${initials(u.name)}</div>
-      <div>
-        <p style="font-size:16px;font-weight:600">${u.name}${isMe?'<span class="badge-me">yo</span>':''}</p>
-        <p style="font-size:13px;color:var(--muted)">Meta: ${fmtGoal(u.goal)}/día</p>
-      </div>
-    </div>
-    <div class="stats-row">
-      <div class="sbox"><div class="snum">${done}</div><div class="slbl">días cumplidos</div></div>
-      <div class="sbox"><div class="snum">${streak}</div><div class="slbl">racha</div></div>
-      <div class="sbox"><div class="snum">${pct}%</div><div class="slbl">progreso</div></div>
-    </div>
-    ${logSection}
-    <div class="sec-title">📅 Calendario — 30 días</div>
-    <div class="legend">
-      <div class="leg"><div class="legsq" style="background:#B5D4F4"></div> Meta cumplida</div>
-      <div class="leg"><div class="legsq" style="background:#fed7aa"></div> Debajo de meta</div>
-      <div class="leg"><div class="legsq" style="background:#f3f4f6;border:1px solid #e5e7eb"></div> Sin registro</div>
-    </div>
-    <div class="day-grid">${cells}</div>
-    ${isMe ? `<div class="settings-section">
-      <div class="settings-title">⚙️ Opciones del reto</div>
-      <div class="settings-row">
-        <label>📅 Cambiar fecha de inicio</label>
-      </div>
-      <div class="date-picker-row" style="margin-bottom:14px">
-        <input type="date" id="new-start-date" value="${fmtDateInput(START)}" />
-        <button onclick="confirmChangeStartDate()">Aplicar</button>
-      </div>
-      <div class="settings-row" style="margin-bottom:10px">
-        <label>🔄 Reiniciar mi reto — borra todos mis registros y vuelve al día 1</label>
-        <button class="danger" onclick="confirmReset()">Reiniciar reto</button>
-      </div>
-      <div class="settings-row">
-        <label>🗑 Eliminar mi perfil — esto no se puede deshacer</label>
-        <button class="danger" onclick="confirmDelete()">Eliminar perfil</button>
-      </div>
-    </div>` : ''}
-  </div>`;
-}
+    function triggerResetModal() {
+      openModal(
+        "¿Reiniciar reto?", 
+        "Esta acción borrará todos tus consumos de agua registrados en los 30 días y volverás al Día 1. No se puede deshacer.",
+        resetMyChallenge
+      );
+    }
 
-function renderLeaderboard() {
-  const ranked = Object.entries(allUsers).map(([id,u]) => {
-    const done = Object.values(u.days||{}).filter(v => v >= u.goal).length;
-    const pct = Math.round((done/TOTAL)*100);
-    return {id, u, done, pct};
-  }).sort((a,b) => b.done - a.done || b.pct - a.pct);
+    function triggerDeleteModal() {
+      openModal(
+        "¿Eliminar tu perfil?", 
+        "Se borrará tu cuenta de usuario, tus estadísticas y registros del reto de manera permanente.",
+        confirmDeleteProfile
+      );
+    }
 
-  if (!ranked.length) return '<div class="empty">Nadie registrado aún.</div>';
-  const medals = ['🥇','🥈','🥉'];
-  return `<div>${ranked.map(({id,u,done,pct},i) => `
-    <div class="lb-item${id===myId?' me':''}">
-      <div class="lb-rank">${medals[i]||(i+1)}</div>
-      <div class="lb-av" style="background:${u.color.bg};color:${u.color.tx}">${initials(u.name)}</div>
-      <div class="lb-info">
-        <div class="lb-name">${u.name}${id===myId?'<span class="badge-me">yo</span>':''}</div>
-        <div class="lb-sub">${done} días cumplidos · meta ${fmtGoal(u.goal)}/día</div>
-        <div class="pbar" style="margin-top:6px"><div class="pfill" style="width:${pct}%"></div></div>
-      </div>
-      <div class="lb-score">${pct}%</div>
-    </div>`).join('')}</div>`;
-}
+    function triggerApplyDate() {
+      const inputVal = document.getElementById('new-start-date').value;
+      if(!inputVal) return showToast("Selecciona una fecha válida");
+      openModal(
+        "¿Cambiar fecha de inicio?", 
+        `Moverás el inicio global del reto a la fecha ${inputVal}. Esto recalculará la posición de los días para todos los participantes.`,
+        () => applyNewStartDate(inputVal)
+      );
+    }
 
-// ═══════════════════════════════════════════
-//   MODAL HELPERS
-// ═══════════════════════════════════════════
-function showModal({title, message, confirmLabel, confirmClass, onConfirm}) {
-  const mc = document.getElementById('modal-container');
-  mc.innerHTML = `<div class="modal-overlay">
-    <div class="modal-box">
-      <h3>${title}</h3>
-      <p>${message}</p>
-      <div class="modal-actions">
-        <button onclick="closeModal()">Cancelar</button>
-        <button class="${confirmClass||'danger-solid'}" onclick="modalConfirmAction()">${confirmLabel}</button>
-      </div>
-    </div>
-  </div>`;
-  window._modalConfirmFn = onConfirm;
-}
-function closeModal() {
-  document.getElementById('modal-container').innerHTML = '';
-  window._modalConfirmFn = null;
-}
-function modalConfirmAction() {
-  closeModal();
-  if (window._modalConfirmFn) window._modalConfirmFn();
-}
+    // =========================================================================
+    // UTILIDADES AUXILIARES
+    // =========================================================================
+    function getLocalDateString(dateObj) {
+      const y = dateObj.getFullYear();
+      const m = String(dateObj.getMonth() + 1).padStart(2, '0');
+      const d = String(dateObj.getDate()).padStart(2, '0');
+      return `${y}-${m}-${d}`;
+    }
 
-// ═══════════════════════════════════════════
-//   ACCIONES OPTIMIZADAS CON CONSOLE.LOGS
-// ═══════════════════════════════════════════
-function fmtDateInput(date) {
-  return date.toISOString().slice(0,10);
-}
-
-function confirmDelete() {
-  console.log("-> Se hizo clic en el botón 'Eliminar perfil'. Abriendo modal...");
-  const u = allUsers[myId];
-  showModal({
-    title: '🗑 Eliminar perfil',
-    message: `¿Seguro que quieres eliminar el perfil de <strong>${u.name}</strong>? Todos tus registros se borrarán y no se podrá recuperar la información.`,
-    confirmLabel: 'Sí, eliminar',
-    confirmClass: 'danger-solid',
-    onConfirm: deleteMyProfile
-  });
-}
-
-async function deleteMyProfile() {
-  console.log("-> Confirmación recibida. Eliminando el usuario actual de Firebase...");
-  showToast('Eliminando perfil...');
-  try {
-    await deleteUserFromDB(myId);
-    delete allUsers[myId];
-    sessionStorage.removeItem('wc_myid');
-    myId = null; viewingId = null;
-    showToast('Perfil eliminado. ¡Hasta pronto!');
-    render();
-  } catch(e) { 
-    console.error("Error al intentar borrar el perfil:", e);
-    showToast('Error al eliminar. Intenta de nuevo.'); 
-  }
-}
-
-function confirmReset() {
-  console.log("-> Se hizo clic en el botón 'Reiniciar reto'. Abriendo modal...");
-  showModal({
-    title: '🔄 Reiniciar reto',
-    message: 'Se borrarán <strong>todos tus registros</strong> de agua y volverás al día 1 (la fecha de inicio no cambia). ¿Continuar?',
-    confirmLabel: 'Sí, reiniciar',
-    confirmClass: 'danger-solid',
-    onConfirm: resetMyChallenge
-  });
-}
-
-async function resetMyChallenge() {
-  console.log("-> Confirmación recibida. Limpiando el historial de días en Firebase...");
-  showToast('Reiniciando...');
-  try {
-    await resetUserDays(myId);
-    allUsers[myId].days = {};
-    showToast('¡Reto reiniciado! Día 1 otra vez 💪');
-    render();
-  } catch(e) { 
-    console.error("Error al intentar reiniciar el reto:", e);
-    showToast('Error al reiniciar. Intenta de nuevo.'); 
-  }
-}
-
-function confirmChangeStartDate() {
-  console.log("-> Se hizo clic en el botón 'Aplicar' fecha. Validando entrada...");
-  const input = document.getElementById('new-start-date');
-  if (!input || !input.value) { showToast('Elige una fecha primero.'); return; }
-  
-  const newDate = new Date(input.value + 'T00:00:00');
-  if (isNaN(newDate)) { showToast('Fecha inválida.'); return; }
-  
-  const fmt = newDate.toLocaleDateString('es-CO', {day:'numeric',month:'long',year:'numeric'});
-  showModal({
-    title: '📅 Cambiar fecha de inicio',
-    message: `El día 1 del reto pasará a ser el <strong>${fmt}</strong>. Este cambio afecta a <em>todos</em> los participantes. ¿Confirmar?`,
-    confirmLabel: 'Cambiar fecha',
-    confirmClass: 'primary',
-    onConfirm: () => applyNewStartDate(input.value)
-  });
-}
-
-async function applyNewStartDate(dateStr) {
-  console.log("-> Confirmación recibida. Actualizando la fecha global de inicio en Firebase a:", dateStr);
-  showToast('Guardando nueva fecha...');
-  try {
-    await saveConfig({ startDate: dateStr });
-    START = new Date(dateStr + 'T00:00:00');
-    showToast('✅ Fecha de inicio actualizada.');
-    viewingId = myId; 
-    render();
-  } catch(e) { 
-    console.error("Error al cambiar la fecha de inicio:", e);
-    showToast('Error al guardar. Intenta de nuevo.'); 
-  }
-}
-
-function pickCol(i) {
-  selColor = i;
-  document.querySelectorAll('.cdot').forEach((d,j) => d.classList.toggle('sel', j===i));
-}
-
-async function register() {
-  const name = (document.getElementById('reg-name').value||'').trim();
-  if (!name) { document.getElementById('reg-name').focus(); return; }
-  const goal = parseInt(document.getElementById('reg-goal').value);
-  const id = 'u' + Date.now();
-  const userData = { name, goal, color: COLORS[selColor], days: {} };
-  allUsers[id] = userData;
-  showToast('Guardando...');
-  try {
-    await saveUser(id, userData);
-    sessionStorage.setItem('wc_myid', id);
-    myId = id;
-    showToast('¡Bienvenida, ' + name + '! 💧');
-    render();
-  } catch(e) {
-    showToast('Error al guardar. Revisa Firebase.');
-    delete allUsers[id];
-  }
-}
-
-function loginAs(id) {
-  sessionStorage.setItem('wc_myid', id);
-  myId = id;
-  render();
-}
-
-function logout() {
- console.clear(); // Limpia la consola para empezar de cero
-  console.log("-> Cerrando sesión del usuario actual...");
-  sessionStorage.removeItem('wc_myid');
-  myId = null; 
-  viewingId = null;
-  currentTab = 'users'; // Te asegura regresar a la pestaña principal
-  render();
-}
-
-function openDetail(id) { viewingId = id; render(); }
-function backToList() { viewingId = null; render(); }
-function switchTab(tab) { currentTab = tab; viewingId = null; render(); }
-
-async function logDay(id) {
-  const val = parseInt(document.getElementById('log-amt').value) || 0;
-  const ti = todayIdx();
-  showToast('Guardando...');
-  try {
-    await patchDay(id, ti, val);
-    const u = allUsers[id];
-    showToast(val >= u.goal ? '¡Meta cumplida hoy! 🎉' : val > 0 ? '✅ Registro guardado.' : 'Registro actualizado.');
-    render();
-  } catch(e) { showToast('Error al guardar.'); }
-}
-
-// ═══════════════════════════════════════════
-//   INICIO
-// ═══════════════════════════════════════════
-async function init() {
-  try {
-    await loadConfig();
-    await loadUsers();
-    if (myId && !allUsers[myId]) { sessionStorage.removeItem('wc_myid'); myId = null; }
-    render();
-  } catch(e) { /* error ya mostrado en loadUsers */ }
-}
-init();
-</script>
+    function showToast(msg) {
+      const t = document.getElementById('toast');
+      t.innerText = msg;
+      t.style.display = 'block';
+      setTimeout(() => { t.style.display = 'none'; }, 2500);
+    }
+  </script>
 </body>
 </html>
