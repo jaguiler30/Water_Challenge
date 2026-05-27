@@ -110,7 +110,15 @@
     .settings-row { display: flex; gap: 8px; align-items: center; margin-bottom: 10px; flex-wrap: wrap; }
     .settings-row label { font-size: 13px; color: var(--text); flex: 1; min-width: 140px; }
 
-    .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 1000; display: flex; align-items: center; justify-content: center; padding: 16px; }
+    .modal-overlay {
+    position: fixed; 
+    inset: 0; 
+    background: rgba(0,0,0,0.5); /* Oscurece el fondo un poco más */
+    z-index: 99999;               /* OBLIGA al modal a estar por encima de TODO */
+    display: flex; 
+    align-items: center; 
+    justify-content: center; 
+    padding: 16px;}    
     .modal-box { background: var(--surface); border-radius: var(--radius); padding: 24px; max-width: 380px; width: 100%; box-shadow: 0 8px 32px rgba(0,0,0,0.18); }
     .modal-box h3 { font-size: 17px; font-weight: 600; margin-bottom: 8px; }
     .modal-box p { font-size: 14px; color: var(--muted); margin-bottom: 20px; line-height: 1.5; }
