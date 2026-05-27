@@ -35,7 +35,6 @@
     .form-field { margin-bottom: 14px; }
     .form-field label { font-size: 12px; font-weight: 500; color: var(--muted); display: block; margin-bottom: 5px; text-transform: uppercase; letter-spacing: 0.04em; }
     .color-row { display: flex; gap: 8px; padding: 4px 0; }
-    .cdot { width: 28px; height: 28px; border-radius: 50%; cursor: pointer; border: 2px solid transparent; transition: all 0.12s; }
     .cdot.sel { border-color: #1a1a1a; transform: scale(1.2); }
     .existing-users { margin-top: 20px; padding-top: 16px; border-top: 1px solid var(--border); }
     .existing-users p { font-size: 12px; color: var(--muted); margin-bottom: 10px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.04em; }
@@ -101,26 +100,22 @@
     .readonly-note { background: #f8fafc; border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 10px 14px; font-size: 13px; color: var(--muted); margin-bottom: 20px; }
     .error-box { background: #fef2f2; border: 1px solid #fca5a5; border-radius: var(--radius-sm); padding: 12px 16px; font-size: 13px; color: #991b1b; margin-bottom: 16px; }
 
-    /* ── Danger button ── */
     button.danger { background: #fff; color: #dc2626; border-color: #fca5a5; }
     button.danger:hover { background: #fef2f2; border-color: #f87171; }
     button.danger-solid { background: #dc2626; color: #fff; border-color: #dc2626; }
     button.danger-solid:hover { background: #b91c1c; }
 
-    /* ── Settings section in detail ── */
     .settings-section { margin-top: 24px; padding-top: 16px; border-top: 1px solid var(--border); }
     .settings-title { font-size: 13px; font-weight: 600; color: var(--muted); margin-bottom: 12px; text-transform: uppercase; letter-spacing: 0.04em; }
     .settings-row { display: flex; gap: 8px; align-items: center; margin-bottom: 10px; flex-wrap: wrap; }
     .settings-row label { font-size: 13px; color: var(--text); flex: 1; min-width: 140px; }
 
-    /* ── Confirm modal ── */
     .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 1000; display: flex; align-items: center; justify-content: center; padding: 16px; }
     .modal-box { background: var(--surface); border-radius: var(--radius); padding: 24px; max-width: 380px; width: 100%; box-shadow: 0 8px 32px rgba(0,0,0,0.18); }
     .modal-box h3 { font-size: 17px; font-weight: 600; margin-bottom: 8px; }
     .modal-box p { font-size: 14px; color: var(--muted); margin-bottom: 20px; line-height: 1.5; }
     .modal-actions { display: flex; gap: 8px; justify-content: flex-end; }
 
-    /* ── Date picker inline ── */
     .date-picker-row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
     .date-picker-row input[type=date] { flex: 1; min-width: 160px; }
   </style>
@@ -140,13 +135,13 @@
 
 <script>
 // ═══════════════════════════════════════════
-//  🔧 CREDENCIALES FIREBASE — ya configuradas
+//   🔧 CREDENCIALES FIREBASE — ya configuradas
 // ═══════════════════════════════════════════
 const FB_URL     = "https://water-challenge-e1ed6-default-rtdb.firebaseio.com";
 const FB_API_KEY = "AIzaSyACJIVPrpqnc7NcnzDPTLhJmQwl2ST6bFA";
 
 // ═══════════════════════════════════════════
-//  CONFIGURACIÓN DEL RETO
+//   CONFIGURACIÓN DEL RETO
 // ═══════════════════════════════════════════
 const TOTAL = 30;
 let START = new Date('2026-05-26'); START.setHours(0,0,0,0);
@@ -167,7 +162,7 @@ let currentTab = 'users';
 let selColor = 0;
 
 // ═══════════════════════════════════════════
-//  FIREBASE REST
+//   FIREBASE REST
 // ═══════════════════════════════════════════
 function fbUrl(path) {
   return `${FB_URL}/${path}.json?key=${FB_API_KEY}`;
@@ -193,7 +188,7 @@ async function fbPatch(path, data) {
 }
 
 // ═══════════════════════════════════════════
-//  HELPERS
+//   HELPERS
 // ═══════════════════════════════════════════
 function todayIdx() {
   const now = new Date(); now.setHours(0,0,0,0);
@@ -211,7 +206,7 @@ function showToast(msg) {
 function fmtGoal(ml) { return ml >= 1000 ? (ml/1000)+'L' : ml+'ml'; }
 
 // ═══════════════════════════════════════════
-//  DATA
+//   DATA
 // ═══════════════════════════════════════════
 async function loadUsers() {
   try {
@@ -249,7 +244,7 @@ async function patchDay(id, dayIdx, amount) {
 }
 
 // ═══════════════════════════════════════════
-//  RENDER
+//   RENDER
 // ═══════════════════════════════════════════
 function render() {
   const wrap = document.getElementById('app-content');
@@ -447,10 +442,7 @@ function renderLeaderboard() {
 }
 
 // ═══════════════════════════════════════════
-//  ACCIONES
-// ═══════════════════════════════════════════
-// ═══════════════════════════════════════════
-//  MODAL HELPERS
+//   MODAL HELPERS
 // ═══════════════════════════════════════════
 function showModal({title, message, confirmLabel, confirmClass, onConfirm}) {
   const mc = document.getElementById('modal-container');
@@ -476,12 +468,14 @@ function modalConfirmAction() {
 }
 
 // ═══════════════════════════════════════════
-//  NUEVAS FUNCIONES
+//   ACCIONES OPTIMIZADAS CON CONSOLE.LOGS
 // ═══════════════════════════════════════════
 function fmtDateInput(date) {
   return date.toISOString().slice(0,10);
 }
+
 function confirmDelete() {
+  console.log("-> Se hizo clic en el botón 'Eliminar perfil'. Abriendo modal...");
   const u = allUsers[myId];
   showModal({
     title: '🗑 Eliminar perfil',
@@ -491,7 +485,9 @@ function confirmDelete() {
     onConfirm: deleteMyProfile
   });
 }
+
 async function deleteMyProfile() {
+  console.log("-> Confirmación recibida. Eliminando el usuario actual de Firebase...");
   showToast('Eliminando perfil...');
   try {
     await deleteUserFromDB(myId);
@@ -500,9 +496,14 @@ async function deleteMyProfile() {
     myId = null; viewingId = null;
     showToast('Perfil eliminado. ¡Hasta pronto!');
     render();
-  } catch(e) { showToast('Error al eliminar. Intenta de nuevo.'); }
+  } catch(e) { 
+    console.error("Error al intentar borrar el perfil:", e);
+    showToast('Error al eliminar. Intenta de nuevo.'); 
+  }
 }
+
 function confirmReset() {
+  console.log("-> Se hizo clic en el botón 'Reiniciar reto'. Abriendo modal...");
   showModal({
     title: '🔄 Reiniciar reto',
     message: 'Se borrarán <strong>todos tus registros</strong> de agua y volverás al día 1 (la fecha de inicio no cambia). ¿Continuar?',
@@ -511,20 +512,29 @@ function confirmReset() {
     onConfirm: resetMyChallenge
   });
 }
+
 async function resetMyChallenge() {
+  console.log("-> Confirmación recibida. Limpiando el historial de días en Firebase...");
   showToast('Reiniciando...');
   try {
     await resetUserDays(myId);
     allUsers[myId].days = {};
     showToast('¡Reto reiniciado! Día 1 otra vez 💪');
     render();
-  } catch(e) { showToast('Error al reiniciar. Intenta de nuevo.'); }
+  } catch(e) { 
+    console.error("Error al intentar reiniciar el reto:", e);
+    showToast('Error al reiniciar. Intenta de nuevo.'); 
+  }
 }
+
 function confirmChangeStartDate() {
+  console.log("-> Se hizo clic en el botón 'Aplicar' fecha. Validando entrada...");
   const input = document.getElementById('new-start-date');
   if (!input || !input.value) { showToast('Elige una fecha primero.'); return; }
+  
   const newDate = new Date(input.value + 'T00:00:00');
   if (isNaN(newDate)) { showToast('Fecha inválida.'); return; }
+  
   const fmt = newDate.toLocaleDateString('es-CO', {day:'numeric',month:'long',year:'numeric'});
   showModal({
     title: '📅 Cambiar fecha de inicio',
@@ -534,20 +544,27 @@ function confirmChangeStartDate() {
     onConfirm: () => applyNewStartDate(input.value)
   });
 }
+
 async function applyNewStartDate(dateStr) {
+  console.log("-> Confirmación recibida. Actualizando la fecha global de inicio en Firebase a:", dateStr);
   showToast('Guardando nueva fecha...');
   try {
     await saveConfig({ startDate: dateStr });
     START = new Date(dateStr + 'T00:00:00');
     showToast('✅ Fecha de inicio actualizada.');
-    viewingId = myId; render();
-  } catch(e) { showToast('Error al guardar. Intenta de nuevo.'); }
+    viewingId = myId; 
+    render();
+  } catch(e) { 
+    console.error("Error al cambiar la fecha de inicio:", e);
+    showToast('Error al guardar. Intenta de nuevo.'); 
+  }
 }
 
 function pickCol(i) {
   selColor = i;
   document.querySelectorAll('.cdot').forEach((d,j) => d.classList.toggle('sel', j===i));
 }
+
 async function register() {
   const name = (document.getElementById('reg-name').value||'').trim();
   if (!name) { document.getElementById('reg-name').focus(); return; }
@@ -567,19 +584,23 @@ async function register() {
     delete allUsers[id];
   }
 }
+
 function loginAs(id) {
   sessionStorage.setItem('wc_myid', id);
   myId = id;
   render();
 }
+
 function logout() {
   sessionStorage.removeItem('wc_myid');
   myId = null; viewingId = null;
   render();
 }
+
 function openDetail(id) { viewingId = id; render(); }
 function backToList() { viewingId = null; render(); }
 function switchTab(tab) { currentTab = tab; viewingId = null; render(); }
+
 async function logDay(id) {
   const val = parseInt(document.getElementById('log-amt').value) || 0;
   const ti = todayIdx();
@@ -593,7 +614,7 @@ async function logDay(id) {
 }
 
 // ═══════════════════════════════════════════
-//  INICIO
+//   INICIO
 // ═══════════════════════════════════════════
 async function init() {
   try {
