@@ -100,6 +100,29 @@
     .badge-me { display: inline-block; background: var(--blue); color: #fff; font-size: 10px; font-weight: 600; padding: 2px 6px; border-radius: 99px; margin-left: 4px; vertical-align: middle; }
     .readonly-note { background: #f8fafc; border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 10px 14px; font-size: 13px; color: var(--muted); margin-bottom: 20px; }
     .error-box { background: #fef2f2; border: 1px solid #fca5a5; border-radius: var(--radius-sm); padding: 12px 16px; font-size: 13px; color: #991b1b; margin-bottom: 16px; }
+
+    /* ── Danger button ── */
+    button.danger { background: #fff; color: #dc2626; border-color: #fca5a5; }
+    button.danger:hover { background: #fef2f2; border-color: #f87171; }
+    button.danger-solid { background: #dc2626; color: #fff; border-color: #dc2626; }
+    button.danger-solid:hover { background: #b91c1c; }
+
+    /* ── Settings section in detail ── */
+    .settings-section { margin-top: 24px; padding-top: 16px; border-top: 1px solid var(--border); }
+    .settings-title { font-size: 13px; font-weight: 600; color: var(--muted); margin-bottom: 12px; text-transform: uppercase; letter-spacing: 0.04em; }
+    .settings-row { display: flex; gap: 8px; align-items: center; margin-bottom: 10px; flex-wrap: wrap; }
+    .settings-row label { font-size: 13px; color: var(--text); flex: 1; min-width: 140px; }
+
+    /* ── Confirm modal ── */
+    .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 1000; display: flex; align-items: center; justify-content: center; padding: 16px; }
+    .modal-box { background: var(--surface); border-radius: var(--radius); padding: 24px; max-width: 380px; width: 100%; box-shadow: 0 8px 32px rgba(0,0,0,0.18); }
+    .modal-box h3 { font-size: 17px; font-weight: 600; margin-bottom: 8px; }
+    .modal-box p { font-size: 14px; color: var(--muted); margin-bottom: 20px; line-height: 1.5; }
+    .modal-actions { display: flex; gap: 8px; justify-content: flex-end; }
+
+    /* ── Date picker inline ── */
+    .date-picker-row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+    .date-picker-row input[type=date] { flex: 1; min-width: 160px; }
   </style>
 </head>
 <body>
@@ -113,6 +136,7 @@
   </div>
 </div>
 <div class="toast" id="toast"></div>
+<div id="modal-container"></div>
 
 <script>
 // ═══════════════════════════════════════════
@@ -125,7 +149,7 @@ const FB_API_KEY = "AIzaSyACJIVPrpqnc7NcnzDPTLhJmQwl2ST6bFA";
 //  CONFIGURACIÓN DEL RETO
 // ═══════════════════════════════════════════
 const TOTAL = 30;
-const START = new Date('2026-05-26'); START.setHours(0,0,0,0);
+let START = new Date('2026-05-26'); START.setHours(0,0,0,0);
 
 const COLORS = [
   {bg:'#BFDBFE',tx:'#1e3a5f'},
@@ -202,6 +226,22 @@ async function loadUsers() {
   }
 }
 async function saveUser(id, data) { await fbSet(`users/${id}`, data); }
+async function deleteUserFromDB(id) {
+  const r = await fetch(fbUrl(`users/${id}`), { method: 'DELETE' });
+  if (!r.ok) throw new Error('Error al eliminar (' + r.status + ')');
+}
+async function resetUserDays(id) {
+  await fbPatch(`users/${id}`, { days: {} });
+}
+async function loadConfig() {
+  try {
+    const cfg = await fbGet('config');
+    if (cfg && cfg.startDate) {
+      START = new Date(cfg.startDate); START.setHours(0,0,0,0);
+    }
+  } catch(e) { /* use default */ }
+}
+async function saveConfig(cfg) { await fbPatch('config', cfg); }
 async function patchDay(id, dayIdx, amount) {
   await fbPatch(`users/${id}/days`, { [dayIdx]: amount });
   if (!allUsers[id].days) allUsers[id].days = {};
@@ -363,6 +403,24 @@ function renderDetail(id) {
       <div class="leg"><div class="legsq" style="background:#f3f4f6;border:1px solid #e5e7eb"></div> Sin registro</div>
     </div>
     <div class="day-grid">${cells}</div>
+    ${isMe ? `<div class="settings-section">
+      <div class="settings-title">⚙️ Opciones del reto</div>
+      <div class="settings-row">
+        <label>📅 Cambiar fecha de inicio</label>
+      </div>
+      <div class="date-picker-row" style="margin-bottom:14px">
+        <input type="date" id="new-start-date" value="${fmtDateInput(START)}" />
+        <button onclick="confirmChangeStartDate()">Aplicar</button>
+      </div>
+      <div class="settings-row" style="margin-bottom:10px">
+        <label>🔄 Reiniciar mi reto — borra todos mis registros y vuelve al día 1</label>
+        <button class="danger" onclick="confirmReset()">Reiniciar reto</button>
+      </div>
+      <div class="settings-row">
+        <label>🗑 Eliminar mi perfil — esto no se puede deshacer</label>
+        <button class="danger" onclick="confirmDelete()">Eliminar perfil</button>
+      </div>
+    </div>` : ''}
   </div>`;
 }
 
@@ -391,6 +449,101 @@ function renderLeaderboard() {
 // ═══════════════════════════════════════════
 //  ACCIONES
 // ═══════════════════════════════════════════
+// ═══════════════════════════════════════════
+//  MODAL HELPERS
+// ═══════════════════════════════════════════
+function showModal({title, message, confirmLabel, confirmClass, onConfirm}) {
+  const mc = document.getElementById('modal-container');
+  mc.innerHTML = `<div class="modal-overlay">
+    <div class="modal-box">
+      <h3>${title}</h3>
+      <p>${message}</p>
+      <div class="modal-actions">
+        <button onclick="closeModal()">Cancelar</button>
+        <button class="${confirmClass||'danger-solid'}" onclick="modalConfirmAction()">${confirmLabel}</button>
+      </div>
+    </div>
+  </div>`;
+  window._modalConfirmFn = onConfirm;
+}
+function closeModal() {
+  document.getElementById('modal-container').innerHTML = '';
+  window._modalConfirmFn = null;
+}
+function modalConfirmAction() {
+  closeModal();
+  if (window._modalConfirmFn) window._modalConfirmFn();
+}
+
+// ═══════════════════════════════════════════
+//  NUEVAS FUNCIONES
+// ═══════════════════════════════════════════
+function fmtDateInput(date) {
+  return date.toISOString().slice(0,10);
+}
+function confirmDelete() {
+  const u = allUsers[myId];
+  showModal({
+    title: '🗑 Eliminar perfil',
+    message: `¿Seguro que quieres eliminar el perfil de <strong>${u.name}</strong>? Todos tus registros se borrarán y no se podrá recuperar la información.`,
+    confirmLabel: 'Sí, eliminar',
+    confirmClass: 'danger-solid',
+    onConfirm: deleteMyProfile
+  });
+}
+async function deleteMyProfile() {
+  showToast('Eliminando perfil...');
+  try {
+    await deleteUserFromDB(myId);
+    delete allUsers[myId];
+    sessionStorage.removeItem('wc_myid');
+    myId = null; viewingId = null;
+    showToast('Perfil eliminado. ¡Hasta pronto!');
+    render();
+  } catch(e) { showToast('Error al eliminar. Intenta de nuevo.'); }
+}
+function confirmReset() {
+  showModal({
+    title: '🔄 Reiniciar reto',
+    message: 'Se borrarán <strong>todos tus registros</strong> de agua y volverás al día 1 (la fecha de inicio no cambia). ¿Continuar?',
+    confirmLabel: 'Sí, reiniciar',
+    confirmClass: 'danger-solid',
+    onConfirm: resetMyChallenge
+  });
+}
+async function resetMyChallenge() {
+  showToast('Reiniciando...');
+  try {
+    await resetUserDays(myId);
+    allUsers[myId].days = {};
+    showToast('¡Reto reiniciado! Día 1 otra vez 💪');
+    render();
+  } catch(e) { showToast('Error al reiniciar. Intenta de nuevo.'); }
+}
+function confirmChangeStartDate() {
+  const input = document.getElementById('new-start-date');
+  if (!input || !input.value) { showToast('Elige una fecha primero.'); return; }
+  const newDate = new Date(input.value + 'T00:00:00');
+  if (isNaN(newDate)) { showToast('Fecha inválida.'); return; }
+  const fmt = newDate.toLocaleDateString('es-CO', {day:'numeric',month:'long',year:'numeric'});
+  showModal({
+    title: '📅 Cambiar fecha de inicio',
+    message: `El día 1 del reto pasará a ser el <strong>${fmt}</strong>. Este cambio afecta a <em>todos</em> los participantes. ¿Confirmar?`,
+    confirmLabel: 'Cambiar fecha',
+    confirmClass: 'primary',
+    onConfirm: () => applyNewStartDate(input.value)
+  });
+}
+async function applyNewStartDate(dateStr) {
+  showToast('Guardando nueva fecha...');
+  try {
+    await saveConfig({ startDate: dateStr });
+    START = new Date(dateStr + 'T00:00:00');
+    showToast('✅ Fecha de inicio actualizada.');
+    viewingId = myId; render();
+  } catch(e) { showToast('Error al guardar. Intenta de nuevo.'); }
+}
+
 function pickCol(i) {
   selColor = i;
   document.querySelectorAll('.cdot').forEach((d,j) => d.classList.toggle('sel', j===i));
@@ -444,6 +597,7 @@ async function logDay(id) {
 // ═══════════════════════════════════════════
 async function init() {
   try {
+    await loadConfig();
     await loadUsers();
     if (myId && !allUsers[myId]) { sessionStorage.removeItem('wc_myid'); myId = null; }
     render();
