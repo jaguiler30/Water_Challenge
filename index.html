@@ -275,6 +275,9 @@
       padding: 14px;
       margin-bottom: 20px;
     }
+    .intake-box form {
+      margin: 0;
+    }
     .intake-title {
       font-size: 11px;
       font-weight: bold;
@@ -453,6 +456,7 @@
       font-size: 13px;
       font-weight: bold;
       color: #2563eb;
+      text-align: right;
     }
 
     /* Modals */
@@ -560,7 +564,7 @@
     const app = firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
 
-    // Estado global de la aplicación (Fecha por defecto: 27 de Mayo de 2026)
+    // Estado global de la aplicación
     let START = new Date('2026-05-27'); 
     START.setHours(0,0,0,0); 
 
@@ -603,7 +607,6 @@
       await db.ref('config').update(configObj);
     }
 
-    // Cambiar activamente la sesión al perfil seleccionado
     function loginAsUser(id) {
       myId = id;
       sessionStorage.setItem('wc_myid', id);
@@ -831,7 +834,6 @@
       const viewHeader = document.createElement('div');
       viewHeader.className = 'viewing-header';
       
-      // Bloque izquierdo con botón volver y nombre
       const leftPart = document.createElement('div');
       leftPart.className = 'viewing-header-left';
       leftPart.innerHTML = `
@@ -840,7 +842,6 @@
       `;
       viewHeader.appendChild(leftPart);
 
-      // Si NO es mi perfil activo, añadir botón para iniciar sesión en él
       if (userId !== myId) {
         const btnLogin = document.createElement('button');
         btnLogin.className = 'btn-action-profile';
@@ -959,25 +960,42 @@
       }
     }
 
+    // =========================================================================
+    // NUEVA FUNCIÓN DE RANKING ACTUALIZADA POR LITROS TOTALES
+    // =========================================================================
     function renderRanking(wrap) {
       const title = document.createElement('h3');
       title.style.fontSize = '12px';
       title.style.margin = '4px 0 12px 0';
       title.style.color = '#64748b';
       title.style.textTransform = 'uppercase';
-      title.innerText = "Posiciones por días completados:";
+      title.innerText = "Posiciones por volumen total de agua consumida:";
       wrap.appendChild(title);
 
       const rankContainer = document.createElement('div');
       rankContainer.className = 'ranking-list';
 
+      // Mapear los usuarios calculando el volumen acumulado en mililitros
       const arr = Object.keys(allUsers).map(k => {
         const u = allUsers[k];
-        const metCount = Object.values(u.days || {}).filter(v => v >= u.goal).length;
-        return { name: u.name, score: metCount, id: k };
+        
+        // Sumar todos los valores guardados en el objeto "days"
+        const totalMl = Object.values(u.days || {}).reduce((acc, currentVolume) => {
+          return acc + (parseInt(currentVolume, 10) || 0);
+        }, 0);
+
+        // Convertir la suma a Litros
+        const totalLitros = totalMl / 1000;
+
+        return { 
+          name: u.name, 
+          litros: totalLitros, 
+          id: k 
+        };
       });
 
-      arr.sort((a, b) => b.score - a.score);
+      // Ordenar la lista de mayor a menor cantidad de litros tomados
+      arr.sort((a, b) => b.litros - a.litros);
 
       if(arr.length === 0) {
         rankContainer.innerHTML = `<p style="font-size:13px; color:#64748b; text-align:center; padding:12px;">Sin datos para calcular ranking.</p>`;
@@ -996,7 +1014,9 @@
               <span class="rank-num">${trophy}</span>
               <span class="rank-name">${item.name} ${item.id === myId ? '<span style="color:#2563eb; font-size:10px;">(Tú)</span>':''}</span>
             </div>
-            <span class="rank-score">${item.score} <span style="font-size:10px; font-weight:normal; color:#64748b;">días</span></span>
+            <div class="rank-score">
+              ${item.litros.toFixed(1)} <span style="font-size:11px; font-weight:normal; color:#64748b;">Litros</span>
+            </div>
           `;
           rankContainer.appendChild(itemEl);
         });
