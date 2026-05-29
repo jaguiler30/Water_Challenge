@@ -452,14 +452,24 @@
       font-weight: 500;
       text-transform: capitalize;
     }
-    .rank-score {
+    .rank-stats-container {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 2px;
+    }
+    .rank-score-litros {
       font-size: 13px;
       font-weight: bold;
       color: #2563eb;
-      text-align: right;
+    }
+    .rank-score-dias {
+      font-size: 10px;
+      color: #64748b;
+      font-weight: 500;
     }
 
-    /* Modals */
+    /* Modales */
     .modal-overlay {
       position: fixed;
       inset: 0;
@@ -961,7 +971,7 @@
     }
 
     // =========================================================================
-    // NUEVA FUNCIÓN DE RANKING ACTUALIZADA POR LITROS TOTALES
+    // DOBLE METRICA: RANKING POR LITROS TOTALES + DIAS CUMPLIDOS SIMULTÁNEOS
     // =========================================================================
     function renderRanking(wrap) {
       const title = document.createElement('h3');
@@ -969,36 +979,35 @@
       title.style.margin = '4px 0 12px 0';
       title.style.color = '#64748b';
       title.style.textTransform = 'uppercase';
-      title.innerText = "Posiciones por volumen total de agua consumida:";
+      title.innerText = "Tabla General del Reto:";
       wrap.appendChild(title);
 
       const rankContainer = document.createElement('div');
       rankContainer.className = 'ranking-list';
 
-      // Mapear los usuarios calculando el volumen acumulado en mililitros
       const arr = Object.keys(allUsers).map(k => {
         const u = allUsers[k];
         
-        // Sumar todos los valores guardados en el objeto "days"
-        const totalMl = Object.values(u.days || {}).reduce((acc, currentVolume) => {
-          return acc + (parseInt(currentVolume, 10) || 0);
-        }, 0);
-
-        // Convertir la suma a Litros
+        // 1. Calcular Volumen Total (Litros)
+        const totalMl = Object.values(u.days || {}).reduce((acc, vol) => acc + (parseInt(vol, 10) || 0), 0);
         const totalLitros = totalMl / 1000;
+
+        // 2. Calcular Días Cumplidos (Días ganados superando la meta individual)
+        const metDaysCount = Object.values(u.days || {}).filter(v => v >= u.goal).length;
 
         return { 
           name: u.name, 
           litros: totalLitros, 
+          diasCumplidos: metDaysCount,
           id: k 
         };
       });
 
-      // Ordenar la lista de mayor a menor cantidad de litros tomados
-      arr.sort((a, b) => b.litros - a.litros);
+      // Ordenar por volumen de agua, si empatan, se desempata por el que tenga más días cumplidos
+      arr.sort((a, b) => b.litros - a.litros || b.diasCumplidos - a.diasCumplidos);
 
       if(arr.length === 0) {
-        rankContainer.innerHTML = `<p style="font-size:13px; color:#64748b; text-align:center; padding:12px;">Sin datos para calcular ranking.</p>`;
+        rankContainer.innerHTML = `<p style="font-size:13px; color:#64748b; text-align:center; padding:12px;">Sin datos para calcular el ranking.</p>`;
       } else {
         arr.forEach((item, index) => {
           const itemEl = document.createElement('div');
@@ -1014,8 +1023,9 @@
               <span class="rank-num">${trophy}</span>
               <span class="rank-name">${item.name} ${item.id === myId ? '<span style="color:#2563eb; font-size:10px;">(Tú)</span>':''}</span>
             </div>
-            <div class="rank-score">
-              ${item.litros.toFixed(1)} <span style="font-size:11px; font-weight:normal; color:#64748b;">Litros</span>
+            <div class="rank-stats-container">
+              <div class="rank-score-litros">${item.litros.toFixed(1)} L</div>
+              <div class="rank-score-dias">🏆 ${item.diasCumplidos} / 30 días</div>
             </div>
           `;
           rankContainer.appendChild(itemEl);
