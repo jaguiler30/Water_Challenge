@@ -119,9 +119,6 @@
       font-weight: 600;
       cursor: pointer;
     }
-    .btn-primary:hover {
-      background: #1d4ed8;
-    }
 
     .user-list {
       display: flex;
@@ -197,7 +194,6 @@
       display: flex;
       align-items: center;
       gap: 4px;
-      transition: background 0.2s;
     }
 
     .viewing-header {
@@ -217,16 +213,6 @@
       padding: 4px 10px;
       border-radius: 6px;
       font-size: 12px;
-      cursor: pointer;
-    }
-    .btn-action-profile {
-      background: #2563eb;
-      color: white;
-      border: none;
-      padding: 6px 12px;
-      border-radius: 6px;
-      font-size: 12px;
-      font-weight: 600;
       cursor: pointer;
     }
 
@@ -458,7 +444,6 @@
 
     const MONTHS = ["Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"];
 
-    // Ejecución forzada al cargar la página para burlar la caché
     window.onload = function() {
       db.ref('users').on('value', (snapshot) => {
         allUsers = snapshot.val() || {};
@@ -477,6 +462,13 @@
       await db.ref('users/' + id).set({ name, goal, pin, days: {} });
     }
 
+    async function updateUserPin(id, newPin) {
+      await db.ref(`users/${id}/pin`).set(newPin);
+      allUsers[id].pin = newPin;
+      showToast("🔒 ¡PIN personalizado guardado con éxito!");
+      render();
+    }
+
     async function saveIntake(userId, dateStr, amount) {
       await db.ref(`users/${userId}/days/${dateStr}`).set(amount);
     }
@@ -485,18 +477,23 @@
       await db.ref('config').update(configObj);
     }
 
+    // Valida ingreso con lógica de PIN por defecto (0000) si está vacío
     function loginAsUser(id) {
       const u = allUsers[id];
-      if (!u || !u.pin) {
-        executeLogin(id);
-        return;
-      }
-      openPinModal((inputPin) => {
-        if (inputPin === u.pin) {
+      if (!u) return;
+
+      // Si no tiene PIN configurado en Firebase, le asignamos el "0000" temporal automático
+      const databasePin = u.pin || "0000";
+
+      openPinModal(databasePin === "0000", (inputPin) => {
+        if (inputPin === databasePin) {
           executeLogin(id);
           closeModal();
+          if (databasePin === "0000") {
+            showToast("ℹ️ Recuerda personalizar tu PIN abajo en las opciones.");
+          }
         } else {
-          showToast("❌ PIN incorrecto.");
+          showToast("❌ PIN incorrecto. Intenta de nuevo.");
         }
       });
     }
@@ -505,7 +502,6 @@
       myId = id;
       sessionStorage.setItem('wc_myid', id);
       viewingId = id;
-      showToast(`¡Hola de nuevo! 👋`);
       render();
     }
 
@@ -534,6 +530,13 @@
       sessionStorage.setItem('wc_myid', id);
       viewingId = id;
       render();
+    }
+
+    function handleUpdatePin(event) {
+      if (event) event.preventDefault();
+      const newPin = document.getElementById('new-custom-pin').value.trim();
+      if(newPin.length !== 4 || isNaN(newPin)) return showToast("El PIN debe ser de 4 números");
+      updateUserPin(myId, newPin);
     }
 
     function handleLogIntake(event) {
@@ -611,7 +614,7 @@
               <label>Meta diaria:</label>
               <select id="reg-goal"><option value="2000" selected>2 litros (Recomendado)</option><option value="2500">2.5 litros</option><option value="3000">3 litros</option></select>
             </div>
-            <div class="form-group"><label>PIN de Seguridad (4 números):</label><input type="password" id="reg-pin" class="form-control" maxlength="4" pattern="[0-9]*" inputmode="numeric" required /></div>
+            <div class="form-group"><label>Crea un PIN de Seguridad (4 números):</label><input type="password" id="reg-pin" class="form-control" maxlength="4" pattern="[0-9]*" inputmode="numeric" required /></div>
             <button type="submit" class="btn-primary">Registrarme</button>
           </form>
         `;
@@ -631,7 +634,10 @@
         card.innerHTML = `
           <div class="user-info">
             <div class="avatar">${u.name[0]}</div>
-            <div class="user-details"><h4>${u.name} ${u.pin?'🔒':'🔓'}</h4><p>Días cumplidos: ${metDays} de 30</p></div>
+            <div class="user-details">
+              <h4>${u.name} ${u.pin ? '🔒' : '⚠️ PIN Temporal'}</h4>
+              <p>Días cumplidos: ${metDays} de 30</p>
+            </div>
           </div>
           <span>➔</span>
         `;
@@ -720,6 +726,12 @@
         const settings = document.createElement('div');
         settings.className = 'settings-section';
         settings.innerHTML = `
+          <h3>🔑 Seguridad: Personalizar mi PIN</h3>
+          <form id="pin-update-form" class="setting-row" style="margin-bottom:20px;">
+            <input type="password" id="new-custom-pin" class="form-control" style="max-width:180px;" placeholder="Nuevo PIN (4 números)" maxlength="4" required />
+            <button type="submit" class="btn-secondary">Actualizar PIN</button>
+          </form>
+
           <h3>📅 Configuración Fecha de Inicio</h3>
           <div class="setting-row">
             <input type="date" id="new-start-date" class="form-control" value="${START.toISOString().split('T')[0]}" />
@@ -727,6 +739,7 @@
           </div>
         `;
         wrap.appendChild(settings);
+        document.getElementById('pin-update-form').addEventListener('submit', handleUpdatePin);
       }
     }
 
@@ -760,14 +773,18 @@
       wrap.appendChild(rankContainer);
     }
 
-    function openPinModal(onPinSubmit) {
+    function openPinModal(isTemporal, onPinSubmit) {
       const modalWrap = document.getElementById('modal-container');
+      const msgText = isTemporal 
+        ? "⚠️ Tu perfil es antiguo. Introduce el PIN temporal <b>0000</b> para ingresar y cámbialo en la parte de abajo:" 
+        : "Introduce tu PIN de 4 números para acceder a tu calendario:";
+
       modalWrap.innerHTML = `
         <div class="modal-overlay">
           <div class="modal-box">
             <h4>🔒 Perfil Protegido</h4>
-            <p>Introduce tu PIN de 4 números:</p>
-            <div style="margin-bottom:16px;"><input type="password" id="input-pin-verify" class="form-control" style="text-align:center; font-size:20px;" maxlength="4" inputmode="numeric" /></div>
+            <p style="font-size:13px; color:#64748b; margin-bottom:12px;">${msgText}</p>
+            <div style="margin-bottom:16px;"><input type="password" id="input-pin-verify" class="form-control" style="text-align:center; font-size:20px; letter-spacing:6px;" maxlength="4" inputmode="numeric" placeholder="••••" /></div>
             <div class="modal-actions"><button class="modal-btn cancel" onclick="closeModal()">Cancelar</button><button class="modal-btn confirm" id="btn-pin-submit">Ingresar</button></div>
           </div>
         </div>
@@ -792,6 +809,7 @@
       openModal("¿Cambiar inicio?", `Moverás el inicio global a ${inputVal}`, () => applyNewStartDate(inputVal));
     }
 
+    // Utilidades
     function getLocalDateString(dateObj) {
       return `${dateObj.getFullYear()}-${String(dateObj.getMonth() + 1).padStart(2, '0')}-${String(dateObj.getDate()).padStart(2, '0')}`;
     }
