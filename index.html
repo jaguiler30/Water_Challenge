@@ -32,7 +32,6 @@
       padding: 20px;
     }
 
-    /* Header */
     .header-section {
       text-align: center;
       margin-bottom: 24px;
@@ -52,7 +51,6 @@
       margin: 0;
     }
 
-    /* Tabs Nav */
     .tabs-nav {
       display: flex;
       background: #f1f5f9;
@@ -79,7 +77,6 @@
       box-shadow: 0 1px 3px rgba(0,0,0,0.1);
     }
 
-    /* Auth & Join Section */
     .auth-box {
       background: #f8fafc;
       border: 1px solid #e2e8f0;
@@ -126,7 +123,6 @@
       background: #1d4ed8;
     }
 
-    /* User List & Profiles */
     .user-list {
       display: flex;
       flex-direction: column;
@@ -174,7 +170,6 @@
       color: #64748b;
     }
 
-    /* Active User View Profile Banner */
     .profile-banner {
       background: #e0f2fe;
       border: 1px solid #bae6fd;
@@ -204,11 +199,7 @@
       gap: 4px;
       transition: background 0.2s;
     }
-    .btn-logout:hover {
-      background: #fef2f2;
-    }
 
-    /* Dashboard Header Indicators */
     .viewing-header {
       display: flex;
       align-items: center;
@@ -238,9 +229,7 @@
       font-weight: 600;
       cursor: pointer;
     }
-    .btn-action-profile:hover {
-      background: #1d4ed8;
-    }
+
     .indicators-grid {
       display: flex;
       gap: 8px;
@@ -257,17 +246,14 @@
     .ind-val {
       font-size: 18px;
       font-weight: bold;
-      color: #0f172a;
     }
     .ind-lbl {
       font-size: 9px;
       color: #64748b;
       text-transform: uppercase;
-      letter-spacing: 0.5px;
       margin-top: 2px;
     }
 
-    /* Log Intake Panel */
     .intake-box {
       background: #eff6ff;
       border: 1px solid #bfdbfe;
@@ -275,16 +261,12 @@
       padding: 14px;
       margin-bottom: 20px;
     }
-    .intake-box form {
-      margin: 0;
-    }
     .intake-title {
       font-size: 11px;
       font-weight: bold;
       color: #1e40af;
       margin-bottom: 8px;
       text-transform: uppercase;
-      letter-spacing: 0.5px;
     }
     .intake-row {
       display: flex;
@@ -300,35 +282,6 @@
       font-weight: 600;
       cursor: pointer;
     }
-
-    /* Calendar Grid */
-    .calendar-section h3 {
-      font-size: 12px;
-      color: #475569;
-      margin: 0 0 8px 0;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-    }
-    .legend {
-      display: flex;
-      gap: 12px;
-      font-size: 11px;
-      color: #64748b;
-      margin-bottom: 12px;
-    }
-    .legend-item {
-      display: flex;
-      align-items: center;
-      gap: 4px;
-    }
-    .dot {
-      width: 12px;
-      height: 12px;
-      border-radius: 3px;
-    }
-    .dot.done { background: #93c5fd; border: 1px solid #60a5fa; }
-    .dot.under { background: #fed7aa; border: 1px solid #f97316; }
-    .dot.none { background: #f1f5f9; border: 1px solid #e2e8f0; }
 
     .grid-30 {
       display: grid;
@@ -351,69 +304,24 @@
       font-size: 10px;
       font-weight: 600;
       color: #64748b;
-      text-align: center;
     }
     .day-cell.active-day {
       border: 2px solid #2563eb !important;
-    }
-    .day-cell.active-day .day-num-text {
-      color: #2563eb;
-      font-weight: 800;
     }
     .day-cell.status-done {
       background: #dbeafe;
       border-color: #93c5fd;
     }
-    .day-cell.status-done .day-num-text {
-      color: #1e40af;
-    }
     .day-cell.status-under {
       background: #ffedd5;
       border-color: #fed7aa;
-    }
-    .day-cell.status-under .day-num-text {
-      color: #9a3412;
     }
     .day-val {
       font-size: 9px;
       margin-top: 3px;
       font-weight: bold;
-      opacity: 0.9;
-    }
-    .day-cell.status-done .day-val { color: #2563eb; }
-    .day-cell.status-under .day-val { color: #f97316; }
-
-    /* Settings Options */
-    .settings-section {
-      border-top: 1px solid #e2e8f0;
-      padding-top: 16px;
-      margin-top: 16px;
-    }
-    .settings-section h3 {
-      font-size: 11px;
-      color: #64748b;
-      margin: 0 0 12px 0;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-    }
-    .setting-item {
-      margin-bottom: 12px;
-    }
-    .setting-row {
-      display: flex;
-      gap: 8px;
-      align-items: center;
-    }
-    .btn-secondary {
-      background: #fff;
-      border: 1px solid #cbd5e1;
-      padding: 10px 14px;
-      border-radius: 8px;
-      font-size: 13px;
-      cursor: pointer;
     }
 
-    /* Ranking view */
     .ranking-list {
       display: flex;
       flex-direction: column;
@@ -448,7 +356,6 @@
       display: flex;
       flex-direction: column;
       align-items: flex-end;
-      gap: 2px;
     }
     .rank-score-litros {
       font-size: 13px;
@@ -458,10 +365,8 @@
     .rank-score-dias {
       font-size: 10px;
       color: #64748b;
-      font-weight: 500;
     }
 
-    /* Modales */
     .modal-overlay {
       position: fixed;
       inset: 0;
@@ -482,17 +387,6 @@
       box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1);
       text-align: center;
     }
-    .modal-box h4 {
-      margin: 0 0 8px 0;
-      font-size: 16px;
-      color: #0f172a;
-    }
-    .modal-box p {
-      margin: 0 0 16px 0;
-      font-size: 13px;
-      color: #64748b;
-      line-height: 1.4;
-    }
     .modal-actions {
       display: flex;
       gap: 8px;
@@ -506,16 +400,9 @@
       cursor: pointer;
       border: none;
     }
-    .modal-btn.cancel {
-      background: #f1f5f9;
-      color: #475569;
-    }
-    .modal-btn.confirm {
-      background: #2563eb;
-      color: #ffffff;
-    }
+    .modal-btn.cancel { background: #f1f5f9; color: #475569; }
+    .modal-btn.confirm { background: #2563eb; color: #ffffff; }
 
-    /* Toast notification */
     .toast {
       position: fixed;
       bottom: 20px;
@@ -526,17 +413,14 @@
       padding: 10px 16px;
       border-radius: 30px;
       font-size: 12px;
-      font-weight: 500;
-      z-index: 100000;
-      box-shadow: 0 10px 15px -3px rgba(0,0,0,0.3);
       display: none;
+      z-index: 100000;
     }
-  </script>
+  </style>
 </head>
 <body>
 
   <div class="app-container">
-    
     <div class="header-section">
       <h1>💧 Water Challenge</h1>
       <p>Reto de hidratación grupal • 30 días</p>
@@ -547,8 +431,9 @@
       <button class="tab-btn" id="tab-ranking" onclick="switchTab('ranking')">🏅 Ranking</button>
     </div>
 
-    <div id="main-content"></div>
-
+    <div id="main-content">
+      <p style="text-align:center; color:#64748b; font-size:14px; padding:20px;">Cargando reto...</p>
+    </div>
   </div>
 
   <div id="modal-container"></div>
@@ -558,7 +443,6 @@
   <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
 
   <script>
-    // Configuración de Firebase Realtime Database
     const firebaseConfig = {
       databaseURL: "https://water-challenge-e1ed6-default-rtdb.firebaseio.com/" 
     };
@@ -566,10 +450,7 @@
     const app = firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
 
-    // Estado global de la aplicación
-    let START = new Date('2026-05-27'); 
-    START.setHours(0,0,0,0); 
-
+    let START = new Date('2026-05-27'); START.setHours(0,0,0,0); 
     let myId = sessionStorage.getItem('wc_myid') || null;
     let viewingId = null; 
     let currentTab = 'users'; 
@@ -577,20 +458,21 @@
 
     const MONTHS = ["Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"];
 
-    db.ref('users').on('value', (snapshot) => {
-      allUsers = snapshot.val() || {};
-      console.log("-> Sincronización Realtime:", allUsers);
-      render();
-    });
-
-    db.ref('config/startDate').on('value', (snapshot) => {
-      if(snapshot.val()) {
-        START = new Date(snapshot.val() + 'T00:00:00');
+    // Ejecución forzada al cargar la página para burlar la caché
+    window.onload = function() {
+      db.ref('users').on('value', (snapshot) => {
+        allUsers = snapshot.val() || {};
         render();
-      }
-    });
+      });
 
-    // Operaciones Base de Datos
+      db.ref('config/startDate').on('value', (snapshot) => {
+        if(snapshot.val()) {
+          START = new Date(snapshot.val() + 'T00:00:00');
+          render();
+        }
+      });
+    };
+
     async function registerUser(id, name, goal, pin) {
       await db.ref('users/' + id).set({ name, goal, pin, days: {} });
     }
@@ -603,20 +485,18 @@
       await db.ref('config').update(configObj);
     }
 
-    // Valida ingreso general o activación de perfil con PIN
     function loginAsUser(id) {
       const u = allUsers[id];
-      if (!u.pin) {
+      if (!u || !u.pin) {
         executeLogin(id);
         return;
       }
-
       openPinModal((inputPin) => {
         if (inputPin === u.pin) {
           executeLogin(id);
           closeModal();
         } else {
-          showToast("❌ PIN incorrecto. Intenta de nuevo.");
+          showToast("❌ PIN incorrecto.");
         }
       });
     }
@@ -624,7 +504,8 @@
     function executeLogin(id) {
       myId = id;
       sessionStorage.setItem('wc_myid', id);
-      showToast(`¡Sesión iniciada como ${allUsers[id].name}! 💧`);
+      viewingId = id;
+      showToast(`¡Hola de nuevo! 👋`);
       render();
     }
 
@@ -642,21 +523,16 @@
       const goal = parseInt(document.getElementById('reg-goal').value, 10);
       const pin = document.getElementById('reg-pin').value.trim();
       
-      if(!name) return showToast("Escribe un nombre válido");
-      if(pin.length !== 4 || isNaN(pin)) return showToast("El PIN debe ser de 4 números");
+      if(!name) return showToast("Escribe un nombre");
+      if(pin.length !== 4 || isNaN(pin)) return showToast("PIN debe ser de 4 números");
       
       const id = name.replace(/\s+/g, '_');
-      
-      if (allUsers[id]) {
-        return showToast("Este nombre ya existe. Elige otro o ingresa desde la lista.");
-      }
+      if (allUsers[id]) return showToast("Este nombre ya existe.");
 
       registerUser(id, name, goal, pin);
-      
       myId = id;
       sessionStorage.setItem('wc_myid', id);
       viewingId = id;
-      showToast("¡Perfil creado y protegido! 💧");
       render();
     }
 
@@ -664,9 +540,8 @@
       if (event) event.preventDefault();
       const amount = parseInt(document.getElementById('intake-amount').value, 10);
       const todayStr = getLocalDateString(new Date());
-      
       saveIntake(myId, todayStr, amount);
-      showToast(amount === 0 ? "Registro actualizado" : `¡Registrados ${amount/1000}L de agua! 🥤`);
+      showToast("🥤 Consumo guardado");
     }
 
     function logout() {
@@ -675,42 +550,36 @@
       viewingId = null;
       currentTab = 'users';
       render();
-      showToast("Cerraste sesión.");
     }
 
     async function applyNewStartDate(dateStr) {
-      showToast('Guardando...');
       try {
         await saveConfig({ startDate: dateStr });
         START = new Date(dateStr + 'T00:00:00');
-        showToast('Fecha de inicio actualizada.');
-        setTimeout(() => { location.reload(); }, 500);
-      } catch(e) {
-        showToast('Error al cambiar la fecha.');
-      }
+        showToast('Fecha actualizada');
+        setTimeout(() => { location.reload(); }, 400);
+      } catch(e) { console.error(e); }
     }
 
-    // Renderizado UI
     function render() {
       const wrap = document.getElementById('main-content');
+      if (!wrap) return;
       wrap.innerHTML = '';
 
       if (myId && allUsers[myId]) {
         const me = allUsers[myId];
         const displayGoal = me.goal >= 1000 ? (me.goal / 1000) + 'L' : me.goal + ' ml';
-        
         const diffTime = new Date().setHours(0,0,0,0) - START.getTime();
         const calcDay = Math.max(1, Math.floor(diffTime / (1000 * 60 * 60 * 24)) + 1);
-        const bannerDay = calcDay <= 30 ? calcDay : 30;
-
+        
         const banner = document.createElement('div');
         banner.className = 'profile-banner';
         banner.innerHTML = `
           <div class="profile-banner-left">
             <div class="avatar">${me.name[0]}</div>
             <div class="user-details">
-              <h4>${me.name} <span style="color:#2563eb; font-size:11px;">(Tú)</span></h4>
-              <p>Meta: ${displayGoal}/día • Día ${bannerDay} de 30</p>
+              <h4>${me.name}</h4>
+              <p>Meta: ${displayGoal} • Día ${calcDay <= 30 ? calcDay : 30} de 30</p>
             </div>
           </div>
           <button class="btn-logout" onclick="logout()">🚪 Salir</button>
@@ -735,72 +604,39 @@
         const box = document.createElement('div');
         box.className = 'auth-box';
         box.innerHTML = `
-          <h3>¡Únete al Reto de Hidratación!</h3>
+          <h3>¡Únete al Reto!</h3>
           <form id="reg-form">
+            <div class="form-group"><label>Nombre / Apodo:</label><input type="text" id="reg-name" class="form-control" required /></div>
             <div class="form-group">
-              <label>Tu nombre completo / apodo:</label>
-              <input type="text" id="reg-name" class="form-control" placeholder="Ej. Jhon Aguilera" required />
+              <label>Meta diaria:</label>
+              <select id="reg-goal"><option value="2000" selected>2 litros (Recomendado)</option><option value="2500">2.5 litros</option><option value="3000">3 litros</option></select>
             </div>
-            <div class="form-group">
-              <label>Meta de consumo diario:</label>
-              <select id="reg-goal">
-                <option value="1500">1.5 litros</option>
-                <option value="2000" selected>2 litros (Recomendado)</option>
-                <option value="2500">2.5 litros</option>
-                <option value="3000">3 litros</option>
-                <option value="3500">3.5 litros</option>
-              </select>
-            </div>
-            <div class="form-group">
-              <label>Crea un PIN de Seguridad (4 números):</label>
-              <input type="password" id="reg-pin" class="form-control" placeholder="Ej. 1234" maxlength="4" pattern="[0-9]*" inputmode="numeric" required />
-            </div>
-            <button type="submit" class="btn-primary">Unirme al reto 💧</button>
+            <div class="form-group"><label>PIN de Seguridad (4 números):</label><input type="password" id="reg-pin" class="form-control" maxlength="4" pattern="[0-9]*" inputmode="numeric" required /></div>
+            <button type="submit" class="btn-primary">Registrarme</button>
           </form>
         `;
         wrap.appendChild(box);
         document.getElementById('reg-form').addEventListener('submit', handleRegister);
       }
 
-      const title = document.createElement('h3');
-      title.style.fontSize = '12px';
-      title.style.margin = '16px 0 10px 0';
-      title.style.color = '#64748b';
-      title.style.textTransform = 'uppercase';
-      title.innerText = "Miembros participando:";
-      wrap.appendChild(title);
-
       const listContainer = document.createElement('div');
       listContainer.className = 'user-list';
-
-      const keys = Object.keys(allUsers);
-      if(keys.length === 0) {
-        listContainer.innerHTML = `<p style="font-size:13px; color:#64748b; text-align:center; padding:12px;">No hay perfiles aún. ¡Sé el primero!</p>`;
-      } else {
-        keys.forEach(k => {
-          const u = allUsers[k];
-          const daysArray = Object.values(u.days || {});
-          const metDays = daysArray.filter(v => v >= u.goal).length;
-          const displayGoal = u.goal >= 1000 ? (u.goal/1000)+'L' : u.goal+'ml';
-          const isProtected = u.pin ? '🔒' : '🔓';
-
-          const card = document.createElement('div');
-          card.className = 'user-card';
-          // Se intercepta el clic de la tarjeta para pasar obligatoriamente por la validación del PIN
-          card.onclick = () => loginAsUser(k);
-          card.innerHTML = `
-            <div class="user-info">
-              <div class="avatar">${u.name[0]}</div>
-              <div class="user-details">
-                <h4>${u.name} ${k === myId ? '<span style="color:#2563eb; font-size:10px;">(Tú)</span>' : ''} <span style="font-size:11px;">${isProtected}</span></h4>
-                <p>Meta: ${displayGoal}/día • Días cumplidos: ${metDays}</p>
-              </div>
-            </div>
-            <span style="font-size: 16px; color: #cbd5e1;">➔</span>
-          `;
-          listContainer.appendChild(card);
-        });
-      }
+      
+      Object.keys(allUsers).forEach(k => {
+        const u = allUsers[k];
+        const metDays = Object.values(u.days || {}).filter(v => v >= u.goal).length;
+        const card = document.createElement('div');
+        card.className = 'user-card';
+        card.onclick = () => loginAsUser(k);
+        card.innerHTML = `
+          <div class="user-info">
+            <div class="avatar">${u.name[0]}</div>
+            <div class="user-details"><h4>${u.name} ${u.pin?'🔒':'🔓'}</h4><p>Días cumplidos: ${metDays} de 30</p></div>
+          </div>
+          <span>➔</span>
+        `;
+        listContainer.appendChild(card);
+      });
       wrap.appendChild(listContainer);
     }
 
@@ -811,47 +647,19 @@
 
       const daysArray = Object.values(days);
       const daysMet = daysArray.filter(v => v >= goal).length;
-      
-      let streak = 0;
-      let d = new Date();
-      while(true) {
-        const dStr = getLocalDateString(d);
-        if(days[dStr] && days[dStr] >= goal) {
-          streak++;
-          d.setDate(d.getDate() - 1);
-        } else {
-          break;
-        }
-      }
-
       const progressPercent = Math.min(100, Math.round((daysMet / 30) * 100));
 
       const viewHeader = document.createElement('div');
       viewHeader.className = 'viewing-header';
-      
-      const leftPart = document.createElement('div');
-      leftPart.className = 'viewing-header-left';
-      leftPart.innerHTML = `
-        <button class="btn-back" onclick="switchTab('users')">← Volver</button>
-        <span style="font-size:13px; font-weight:600; text-transform:capitalize; margin-left:4px;">Perfil de ${u.name}</span>
+      viewHeader.innerHTML = `
+        <div class="viewing-header-left"><button class="btn-back" onclick="switchTab('users')">← Volver</button></div>
       `;
-      viewHeader.appendChild(leftPart);
-
-      if (userId !== myId) {
-        const btnLogin = document.createElement('button');
-        btnLogin.className = 'btn-action-profile';
-        btnLogin.innerText = "🔑 Usar este perfil";
-        btnLogin.onclick = () => loginAsUser(userId);
-        viewHeader.appendChild(btnLogin);
-      }
-
       wrap.appendChild(viewHeader);
 
       const indGrid = document.createElement('div');
       indGrid.className = 'indicators-grid';
       indGrid.innerHTML = `
-        <div class="ind-card"><div class="ind-val">${daysMet}</div><div class="ind-lbl">Días Cumplidos</div></div>
-        <div class="ind-card"><div class="ind-val">${streak}</div><div class="ind-lbl">Racha 🔥</div></div>
+        <div class="ind-card"><div class="ind-val">${daysMet}</div><div class="ind-lbl">Cumplidos</div></div>
         <div class="ind-card"><div class="ind-val">${progressPercent}%</div><div class="ind-lbl">Progreso</div></div>
       `;
       wrap.appendChild(indGrid);
@@ -859,25 +667,17 @@
       if (userId === myId) {
         const todayStr = getLocalDateString(new Date());
         const currentSavedIntake = days[todayStr] !== undefined ? days[todayStr] : -1;
-
         const intakeBox = document.createElement('div');
         intakeBox.className = 'intake-box';
-        
-        const elapsed = Math.floor((new Date().setHours(0,0,0,0) - START.getTime()) / (1000 * 60 * 60 * 24)) + 1;
-        const currentIntakeDay = elapsed >= 1 && elapsed <= 30 ? elapsed : 30;
-
         intakeBox.innerHTML = `
-          <div class="intake-title">💧 Registrar mi consumo de hoy (Día ${currentIntakeDay})</div>
+          <div class="intake-title">💧 Registrar agua de hoy</div>
           <form id="intake-form" class="intake-row">
-            <select id="intake-amount" style="flex: 1;">
-              <option value="0" ${currentSavedIntake === 0 ? 'selected' : ''}>No tomé nada</option>
-              <option value="500" ${currentSavedIntake === 500 ? 'selected' : ''}>0.5 litros</option>
-              <option value="1000" ${currentSavedIntake === 1000 ? 'selected' : ''}>1.0 litro</option>
-              <option value="1500" ${currentSavedIntake === 1500 ? 'selected' : ''}>1.5 litros</option>
-              <option value="2000" ${currentSavedIntake === 2000 ? 'selected' : ''}>2.0 litros</option>
-              <option value="2500" ${currentSavedIntake === 2500 ? 'selected' : ''}>2.5 litros</option>
-              <option value="3000" ${currentSavedIntake === 3000 ? 'selected' : ''}>3.0 litros</option>
-              <option value="3500" ${currentSavedIntake === 3500 ? 'selected' : ''}>3.5 litros</option>
+            <select id="intake-amount" style="flex:1;">
+              <option value="0" ${currentSavedIntake===0?'selected':''}>0 ml</option>
+              <option value="1000" ${currentSavedIntake===1000?'selected':''}>1.0 L</option>
+              <option value="2000" ${currentSavedIntake===2000?'selected':''}>2.0 L</option>
+              <option value="2500" ${currentSavedIntake===2500?'selected':''}>2.5 L</option>
+              <option value="3000" ${currentSavedIntake===3000?'selected' :''}>3.0 L</option>
             </select>
             <button type="submit" class="btn-save-intake">Guardar</button>
           </form>
@@ -888,29 +688,13 @@
 
       const calSection = document.createElement('div');
       calSection.className = 'calendar-section';
-      
-      const endDate = new Date(START.getTime());
-      endDate.setDate(endDate.getDate() + 29);
-      const startRangeStr = `${START.getDate()} de ${MONTHS[START.getMonth()]}`;
-      const endRangeStr = `${endDate.getDate()} de ${MONTHS[endDate.getMonth()]}`;
-
-      calSection.innerHTML = `
-        <h3>📅 Calendario — Del ${startRangeStr} al ${endRangeStr}</h3>
-        <div class="legend">
-          <div class="legend-item"><div class="dot done"></div> Meta cumplida</div>
-          <div class="legend-item"><div class="dot under"></div> Debajo de meta</div>
-          <div class="legend-item"><div class="dot none"></div> Sin registro</div>
-        </div>
-      `;
-
       const grid = document.createElement('div');
       grid.className = 'grid-30';
 
       const todayLocalDateStr = getLocalDateString(new Date());
 
       for (let i = 0; i < 30; i++) {
-        let targetDate = new Date(START.getTime());
-        targetDate.setDate(targetDate.getDate() + i);
+        let targetDate = new Date(START.getTime()); targetDate.setDate(targetDate.getDate() + i);
         const dateStr = getLocalDateString(targetDate);
         const cellDateText = `${targetDate.getDate()} / ${MONTHS[targetDate.getMonth()]}`;
 
@@ -924,14 +708,9 @@
           else if (valLog > 0) statusClass = 'status-under';
         }
 
-        const isToday = (dateStr === todayLocalDateStr);
-
         const cell = document.createElement('div');
-        cell.className = `day-cell ${statusClass} ${isToday ? 'active-day' : ''}`;
-        cell.innerHTML = `
-          <div class="day-num-text">${cellDateText}</div>
-          <div class="day-val">${displayVolume}</div>
-        `;
+        cell.className = `day-cell ${statusClass} ${dateStr === todayLocalDateStr ? 'active-day' : ''}`;
+        cell.innerHTML = `<div class="day-num-text">${cellDateText}</div><div class="day-val">${displayVolume}</div>`;
         grid.appendChild(cell);
       }
       calSection.appendChild(grid);
@@ -941,13 +720,10 @@
         const settings = document.createElement('div');
         settings.className = 'settings-section';
         settings.innerHTML = `
-          <h3>📅 Configuración del Administrador</h3>
-          <div class="setting-item">
-            <label style="display:block; font-size:11px; font-weight:600; color:#475569; margin-bottom:4px;">Cambiar fecha de inicio global del reto:</label>
-            <div class="setting-row">
-              <input type="date" id="new-start-date" class="form-control" style="padding:6px;" value="${START.toISOString().split('T')[0]}" />
-              <button class="btn-secondary" style="padding:6px 12px; font-size:12px;" onclick="triggerApplyDate()">Aplicar</button>
-            </div>
+          <h3>📅 Configuración Fecha de Inicio</h3>
+          <div class="setting-row">
+            <input type="date" id="new-start-date" class="form-control" value="${START.toISOString().split('T')[0]}" />
+            <button class="btn-secondary" onclick="triggerApplyDate()">Aplicar</button>
           </div>
         `;
         wrap.appendChild(settings);
@@ -955,119 +731,74 @@
     }
 
     function renderRanking(wrap) {
-      const title = document.createElement('h3');
-      title.style.fontSize = '12px';
-      title.style.margin = '4px 0 12px 0';
-      title.style.color = '#64748b';
-      title.style.textTransform = 'uppercase';
-      title.innerText = "Tabla General del Reto:";
-      wrap.appendChild(title);
-
       const rankContainer = document.createElement('div');
       rankContainer.className = 'ranking-list';
 
       const arr = Object.keys(allUsers).map(k => {
         const u = allUsers[k];
         const totalMl = Object.values(u.days || {}).reduce((acc, vol) => acc + (parseInt(vol, 10) || 0), 0);
-        const totalLitros = totalMl / 1000;
         const metDaysCount = Object.values(u.days || {}).filter(v => v >= u.goal).length;
-
-        return { 
-          name: u.name, 
-          litros: totalLitros, 
-          diasCumplidos: metDaysCount,
-          id: k 
-        };
+        return { name: u.name, litros: totalMl / 1000, diasCumplidos: metDaysCount, id: k };
       });
 
       arr.sort((a, b) => b.litros - a.litros || b.diasCumplidos - a.diasCumplidos);
 
-      if(arr.length === 0) {
-        rankContainer.innerHTML = `<p style="font-size:13px; color:#64748b; text-align:center; padding:12px;">Sin datos para calcular el ranking.</p>`;
-      } else {
-        arr.forEach((item, index) => {
-          const itemEl = document.createElement('div');
-          itemEl.className = 'rank-item';
-          
-          let trophy = index + 1;
-          if (index === 0) trophy = '🥇';
-          else if (index === 1) trophy = '🥈';
-          else if (index === 2) trophy = '🥉';
+      arr.forEach((item, index) => {
+        let trophy = index + 1;
+        if (index === 0) trophy = '🥇';
+        else if (index === 1) trophy = '🥈';
+        else if (index === 2) trophy = '🥉';
 
-          itemEl.innerHTML = `
-            <div class="rank-left">
-              <span class="rank-num">${trophy}</span>
-              <span class="rank-name">${item.name} ${item.id === myId ? '<span style="color:#2563eb; font-size:10px;">(Tú)</span>':''}</span>
-            </div>
-            <div class="rank-stats-container">
-              <div class="rank-score-litros">${item.litros.toFixed(1)} L</div>
-              <div class="rank-score-dias">🏆 ${item.diasCumplidos} / 30 días</div>
-            </div>
-          `;
-          rankContainer.appendChild(itemEl);
-        });
-      }
+        const itemEl = document.createElement('div');
+        itemEl.className = 'rank-item';
+        itemEl.innerHTML = `
+          <div class="rank-left"><span class="rank-num">${trophy}</span><span class="rank-name">${item.name}</span></div>
+          <div class="rank-stats-container"><div class="rank-score-litros">${item.litros.toFixed(1)} L</div><div class="rank-score-dias">🏆 ${item.diasCumplidos} / 30 d</div></div>
+        `;
+        rankContainer.appendChild(itemEl);
+      });
       wrap.appendChild(rankContainer);
     }
 
-    // Modal PIN de seguridad
     function openPinModal(onPinSubmit) {
       const modalWrap = document.getElementById('modal-container');
       modalWrap.innerHTML = `
         <div class="modal-overlay">
           <div class="modal-box">
             <h4>🔒 Perfil Protegido</h4>
-            <p>Introduce tu PIN de 4 números para acceder e ingresar agua:</p>
-            <div style="margin-bottom: 16px;">
-              <input type="password" id="input-pin-verify" class="form-control" style="text-align:center; font-size:20px; letter-spacing:8px;" maxlength="4" inputmode="numeric" placeholder="••••" />
-            </div>
-            <div class="modal-actions">
-              <button class="modal-btn cancel" onclick="closeModal()">Cancelar</button>
-              <button class="modal-btn confirm" id="btn-pin-submit">Ingresar</button>
-            </div>
+            <p>Introduce tu PIN de 4 números:</p>
+            <div style="margin-bottom:16px;"><input type="password" id="input-pin-verify" class="form-control" style="text-align:center; font-size:20px;" maxlength="4" inputmode="numeric" /></div>
+            <div class="modal-actions"><button class="modal-btn cancel" onclick="closeModal()">Cancelar</button><button class="modal-btn confirm" id="btn-pin-submit">Ingresar</button></div>
           </div>
         </div>
       `;
-      
       document.getElementById('btn-pin-submit').onclick = () => {
-        const pinValue = document.getElementById('input-pin-verify').value.trim();
-        onPinSubmit(pinValue);
+        onPinSubmit(document.getElementById('input-pin-verify').value.trim());
       };
     }
 
     function openModal(title, msg, onConfirmClick) {
       const modalWrap = document.getElementById('modal-container');
       modalWrap.innerHTML = `
-        <div class="modal-overlay">
-          <div class="modal-box">
-            <h4>${title}</h4>
-            <p>${msg}</p>
-            <div class="modal-actions">
-              <button class="modal-btn cancel" onclick="closeModal()">Cancelar</button>
-              <button class="modal-btn confirm" id="modal-confirm-btn">Confirmar</button>
-            </div>
-          </div>
-        </div>
+        <div class="modal-overlay"><div class="modal-box"><h4>${title}</h4><p>${msg}</p><div class="modal-actions"><button class="modal-btn cancel" onclick="closeModal()">Cancelar</button><button class="modal-btn confirm" id="modal-confirm-btn">Confirmar</button></div></div></div>
       `;
       document.getElementById('modal-confirm-btn').onclick = onConfirmClick;
     }
 
-    function closeModal() {
-      document.getElementById('modal-container').innerHTML = '';
+    function closeModal() { document.getElementById('modal-container').innerHTML = ''; }
+    function triggerApplyDate() {
+      const inputVal = document.getElementById('new-start-date').value;
+      if(!inputVal) return showToast("Fecha inválida");
+      openModal("¿Cambiar inicio?", `Moverás el inicio global a ${inputVal}`, () => applyNewStartDate(inputVal));
     }
 
-    // Utilidades
     function getLocalDateString(dateObj) {
-      const y = dateObj.getFullYear();
-      const m = String(dateObj.getMonth() + 1).padStart(2, '0');
-      const d = String(dateObj.getDate()).padStart(2, '0');
-      return `${y}-${m}-${d}`;
+      return `${dateObj.getFullYear()}-${String(dateObj.getMonth() + 1).padStart(2, '0')}-${String(dateObj.getDate()).padStart(2, '0')}`;
     }
 
     function showToast(msg) {
       const t = document.getElementById('toast');
-      t.innerText = msg;
-      t.style.display = 'block';
+      t.innerText = msg; t.style.display = 'block';
       setTimeout(() => { t.style.display = 'none'; }, 2500);
     }
   </script>
