@@ -332,43 +332,56 @@
 
     .grid-30 {
       display: grid;
-      grid-template-columns: repeat(6, 1fr);
-      gap: 6px;
+      grid-template-columns: repeat(5, 1fr); /* Ajustado a 5 columnas para que la fecha quepa perfectamente */
+      gap: 8px;
       margin-bottom: 24px;
     }
     .day-cell {
       aspect-ratio: 1;
-      border-radius: 6px;
+      border-radius: 8px;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      font-size: 11px;
-      font-weight: 500;
-      color: #94a3b8;
       background: #f8fafc;
       border: 1px solid #e2e8f0;
+      padding: 4px;
+    }
+    .day-num-text {
+      font-size: 10px;
+      font-weight: 600;
+      color: #64748b;
+      text-align: center;
     }
     .day-cell.active-day {
       border: 2px solid #2563eb !important;
-      color: #1e293b;
-      font-weight: bold;
+    }
+    .day-cell.active-day .day-num-text {
+      color: #2563eb;
+      font-weight: 800;
     }
     .day-cell.status-done {
       background: #dbeafe;
       border-color: #93c5fd;
+    }
+    .day-cell.status-done .day-num-text {
       color: #1e40af;
     }
     .day-cell.status-under {
       background: #ffedd5;
       border-color: #fed7aa;
+    }
+    .day-cell.status-under .day-num-text {
       color: #9a3412;
     }
     .day-val {
-      font-size: 8px;
-      margin-top: 1px;
-      opacity: 0.8;
+      font-size: 9px;
+      margin-top: 3px;
+      font-weight: bold;
+      opacity: 0.9;
     }
+    .day-cell.status-done .day-val { color: #2563eb; }
+    .day-cell.status-under .day-val { color: #f97316; }
 
     /* Settings Options */
     .settings-section {
@@ -398,27 +411,6 @@
       border-radius: 8px;
       font-size: 13px;
       cursor: pointer;
-    }
-    .action-row {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      font-size: 12px;
-      color: #64748b;
-      margin-bottom: 10px;
-    }
-    .btn-danger-outline {
-      background: #fff;
-      color: #dc2626;
-      border: 1px solid #fca5a5;
-      padding: 6px 12px;
-      border-radius: 6px;
-      font-size: 12px;
-      font-weight: 500;
-      cursor: pointer;
-    }
-    .btn-danger-outline:hover {
-      background: #fef2f2;
     }
 
     /* Ranking view */
@@ -496,7 +488,7 @@
       color: #0f172a;
     }
     .modal-box p {
-      margin: 0 0 20px 0;
+      margin: 0 0 16px 0;
       font-size: 13px;
       color: #64748b;
       line-height: 1.4;
@@ -519,7 +511,7 @@
       color: #475569;
     }
     .modal-btn.confirm {
-      background: #dc2626;
+      background: #2563eb;
       color: #ffffff;
     }
 
@@ -574,7 +566,7 @@
     const app = firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
 
-    // Estado global de la aplicación
+    // Estado global de la aplicación (Inicia el 27 de Mayo de 2026)
     let START = new Date('2026-05-27'); 
     START.setHours(0,0,0,0); 
 
@@ -582,6 +574,9 @@
     let viewingId = null; 
     let currentTab = 'users'; 
     let allUsers = {};
+
+    // Diccionario para nombres de meses cortos en español
+    const MONTHS = ["Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"];
 
     db.ref('users').on('value', (snapshot) => {
       allUsers = snapshot.val() || {};
@@ -597,20 +592,12 @@
     });
 
     // Operaciones Base de Datos
-    async function registerUser(id, name, goal) {
-      await db.ref('users/' + id).set({ name, goal, days: {} });
+    async function registerUser(id, name, goal, pin) {
+      await db.ref('users/' + id).set({ name, goal, pin, days: {} });
     }
 
     async function saveIntake(userId, dateStr, amount) {
       await db.ref(`users/${userId}/days/${dateStr}`).set(amount);
-    }
-
-    async function resetUserDays(userId) {
-      await db.ref(`users/${userId}/days`).remove();
-    }
-
-    async function deleteUserProfile(userId) {
-      await db.ref(`users/${userId}`).remove();
     }
 
     async function saveConfig(configObj) {
@@ -618,6 +605,23 @@
     }
 
     function loginAsUser(id) {
+      const u = allUsers[id];
+      if (!u.pin) {
+        executeLogin(id);
+        return;
+      }
+
+      openPinModal((inputPin) => {
+        if (inputPin === u.pin) {
+          executeLogin(id);
+          closeModal();
+        } else {
+          showToast("❌ PIN incorrecto. Intenta de nuevo.");
+        }
+      });
+    }
+
+    function executeLogin(id) {
       myId = id;
       sessionStorage.setItem('wc_myid', id);
       showToast(`¡Sesión iniciada como ${allUsers[id].name}! 💧`);
@@ -641,16 +645,23 @@
       if (event) event.preventDefault();
       const name = document.getElementById('reg-name').value.trim().toLowerCase();
       const goal = parseInt(document.getElementById('reg-goal').value, 10);
+      const pin = document.getElementById('reg-pin').value.trim();
       
       if(!name) return showToast("Escribe un nombre válido");
+      if(pin.length !== 4 || isNaN(pin)) return showToast("El PIN debe ser de 4 números");
       
       const id = name.replace(/\s+/g, '_');
-      registerUser(id, name, goal);
+      
+      if (allUsers[id]) {
+        return showToast("Este nombre ya existe. Elige otro o ingresa desde la lista.");
+      }
+
+      registerUser(id, name, goal, pin);
       
       myId = id;
       sessionStorage.setItem('wc_myid', id);
       viewingId = id;
-      showToast("¡Perfil creado con éxito! 💧");
+      showToast("¡Perfil creado y protegido! 💧");
       render();
     }
 
@@ -660,7 +671,7 @@
       const todayStr = getLocalDateString(new Date());
       
       saveIntake(myId, todayStr, amount);
-      showToast(amount === 0 ? "Registro actualizado: Sin consumo" : `¡Registrados ${amount/1000}L de agua! 🥤`);
+      showToast(amount === 0 ? "Registro actualizado" : `¡Registrados ${amount/1000}L de agua! 🥤`);
     }
 
     function logout() {
@@ -672,19 +683,6 @@
       showToast("Cerraste sesión.");
     }
 
-    async function resetMyChallenge() {
-      showToast('Reiniciando...');
-      try {
-        await resetUserDays(myId);
-        if(allUsers[myId]) allUsers[myId].days = {};
-        closeModal();
-        showToast('¡Reto reiniciado!');
-        setTimeout(() => { location.reload(); }, 500);
-      } catch(e) {
-        showToast('Error al reiniciar.');
-      }
-    }
-
     async function applyNewStartDate(dateStr) {
       showToast('Guardando...');
       try {
@@ -694,20 +692,6 @@
         setTimeout(() => { location.reload(); }, 500);
       } catch(e) {
         showToast('Error al cambiar la fecha.');
-      }
-    }
-
-    async function confirmDeleteProfile() {
-      try {
-        await deleteUserProfile(myId);
-        sessionStorage.removeItem('wc_myid');
-        myId = null;
-        viewingId = null;
-        closeModal();
-        showToast('Perfil eliminado.');
-        setTimeout(() => { location.reload(); }, 500);
-      } catch(e) {
-        showToast('Error al eliminar.');
       }
     }
 
@@ -772,6 +756,10 @@
                 <option value="3500">3.5 litros</option>
               </select>
             </div>
+            <div class="form-group">
+              <label>Crea un PIN de Seguridad (4 números):</label>
+              <input type="password" id="reg-pin" class="form-control" placeholder="Ej. 1234" maxlength="4" pattern="[0-9]*" inputmode="numeric" required />
+            </div>
             <button type="submit" class="btn-primary">Unirme al reto 💧</button>
           </form>
         `;
@@ -799,6 +787,7 @@
           const daysArray = Object.values(u.days || {});
           const metDays = daysArray.filter(v => v >= u.goal).length;
           const displayGoal = u.goal >= 1000 ? (u.goal/1000)+'L' : u.goal+'ml';
+          const isProtected = u.pin ? '🔒' : '🔓';
 
           const card = document.createElement('div');
           card.className = 'user-card';
@@ -807,7 +796,7 @@
             <div class="user-info">
               <div class="avatar">${u.name[0]}</div>
               <div class="user-details">
-                <h4>${u.name} ${k === myId ? '<span style="color:#2563eb; font-size:10px;">(Tú)</span>' : ''}</h4>
+                <h4>${u.name} ${k === myId ? '<span style="color:#2563eb; font-size:10px;">(Tú)</span>' : ''} <span style="font-size:11px;">${isProtected}</span></h4>
                 <p>Meta: ${displayGoal}/día • Días cumplidos: ${metDays}</p>
               </div>
             </div>
@@ -901,10 +890,18 @@
         document.getElementById('intake-form').addEventListener('submit', handleLogIntake);
       }
 
+      // Sección del Calendario Dinámico por Fechas Reales
       const calSection = document.createElement('div');
       calSection.className = 'calendar-section';
+      
+      // Calcular e imprimir rango de fechas dinámico en el subtítulo
+      const endDate = new Date(START.getTime());
+      endDate.setDate(endDate.getDate() + 29);
+      const startRangeStr = `${START.getDate()} de ${MONTHS[START.getMonth()]}`;
+      const endRangeStr = `${endDate.getDate()} de ${MONTHS[endDate.getMonth()]}`;
+
       calSection.innerHTML = `
-        <h3>📅 Calendario — 30 días</h3>
+        <h3>📅 Calendario — Del ${startRangeStr} al ${endRangeStr}</h3>
         <div class="legend">
           <div class="legend-item"><div class="dot done"></div> Meta cumplida</div>
           <div class="legend-item"><div class="dot under"></div> Debajo de meta</div>
@@ -917,10 +914,14 @@
 
       const todayLocalDateStr = getLocalDateString(new Date());
 
+      // Generar las 30 celdas calculando el día real del calendario para cada una
       for (let i = 0; i < 30; i++) {
         let targetDate = new Date(START.getTime());
         targetDate.setDate(targetDate.getDate() + i);
         const dateStr = getLocalDateString(targetDate);
+
+        // Formato visible en la casilla: "Día / Mes corto" (Ej: 27/May)
+        const cellDateText = `${targetDate.getDate()} / ${MONTHS[targetDate.getMonth()]}`;
 
         const valLog = days[dateStr];
         let statusClass = '';
@@ -937,7 +938,7 @@
         const cell = document.createElement('div');
         cell.className = `day-cell ${statusClass} ${isToday ? 'active-day' : ''}`;
         cell.innerHTML = `
-          <div>${i + 1}</div>
+          <div class="day-num-text">${cellDateText}</div>
           <div class="day-val">${displayVolume}</div>
         `;
         grid.appendChild(cell);
@@ -949,30 +950,19 @@
         const settings = document.createElement('div');
         settings.className = 'settings-section';
         settings.innerHTML = `
-          <h3>⚙️ Opciones del reto</h3>
+          <h3>📅 Configuración del Administrador</h3>
           <div class="setting-item">
-            <label style="display:block; font-size:11px; font-weight:600; color:#475569; margin-bottom:4px;">📅 Cambiar fecha de inicio global:</label>
+            <label style="display:block; font-size:11px; font-weight:600; color:#475569; margin-bottom:4px;">Cambiar fecha de inicio global del reto:</label>
             <div class="setting-row">
               <input type="date" id="new-start-date" class="form-control" style="padding:6px;" value="${START.toISOString().split('T')[0]}" />
               <button class="btn-secondary" style="padding:6px 12px; font-size:12px;" onclick="triggerApplyDate()">Aplicar</button>
             </div>
-          </div>
-          <div class="action-row" style="margin-top:16px;">
-            <span>🔄 Reiniciar mi progreso a cero:</span>
-            <button class="btn-danger-outline" onclick="triggerResetModal()">Reiniciar reto</button>
-          </div>
-          <div class="action-row">
-            <span>🗑 Eliminar mi perfil por completo:</span>
-            <button class="btn-danger-outline" onclick="triggerDeleteModal()">Eliminar perfil</button>
           </div>
         `;
         wrap.appendChild(settings);
       }
     }
 
-    // =========================================================================
-    // DOBLE METRICA: RANKING POR LITROS TOTALES + DIAS CUMPLIDOS SIMULTÁNEOS
-    // =========================================================================
     function renderRanking(wrap) {
       const title = document.createElement('h3');
       title.style.fontSize = '12px';
@@ -987,12 +977,8 @@
 
       const arr = Object.keys(allUsers).map(k => {
         const u = allUsers[k];
-        
-        // 1. Calcular Volumen Total (Litros)
         const totalMl = Object.values(u.days || {}).reduce((acc, vol) => acc + (parseInt(vol, 10) || 0), 0);
         const totalLitros = totalMl / 1000;
-
-        // 2. Calcular Días Cumplidos (Días ganados superando la meta individual)
         const metDaysCount = Object.values(u.days || {}).filter(v => v >= u.goal).length;
 
         return { 
@@ -1003,7 +989,6 @@
         };
       });
 
-      // Ordenar por volumen de agua, si empatan, se desempata por el que tenga más días cumplidos
       arr.sort((a, b) => b.litros - a.litros || b.diasCumplidos - a.diasCumplidos);
 
       if(arr.length === 0) {
@@ -1034,7 +1019,31 @@
       wrap.appendChild(rankContainer);
     }
 
-    // Modales de Confirmación
+    // Modal PIN de seguridad
+    function openPinModal(onPinSubmit) {
+      const modalWrap = document.getElementById('modal-container');
+      modalWrap.innerHTML = `
+        <div class="modal-overlay">
+          <div class="modal-box">
+            <h4>🔒 Perfil Protegido</h4>
+            <p>Introduce tu PIN de 4 números para acceder e ingresar agua:</p>
+            <div style="margin-bottom: 16px;">
+              <input type="password" id="input-pin-verify" class="form-control" style="text-align:center; font-size:20px; letter-spacing:8px;" maxlength="4" inputmode="numeric" placeholder="••••" />
+            </div>
+            <div class="modal-actions">
+              <button class="modal-btn cancel" onclick="closeModal()">Cancelar</button>
+              <button class="modal-btn confirm" id="btn-pin-submit">Ingresar</button>
+            </div>
+          </div>
+        </div>
+      `;
+      
+      document.getElementById('btn-pin-submit').onclick = () => {
+        const pinValue = document.getElementById('input-pin-verify').value.trim();
+        onPinSubmit(pinValue);
+      };
+    }
+
     function openModal(title, msg, onConfirmClick) {
       const modalWrap = document.getElementById('modal-container');
       modalWrap.innerHTML = `
@@ -1056,28 +1065,12 @@
       document.getElementById('modal-container').innerHTML = '';
     }
 
-    function triggerResetModal() {
-      openModal(
-        "¿Reiniciar reto?", 
-        "Esta acción borrará todos tus consumos de agua registrados en los 30 días y volverás al Día 1. No se puede deshacer.",
-        resetMyChallenge
-      );
-    }
-
-    function triggerDeleteModal() {
-      openModal(
-        "¿Eliminar tu perfil?", 
-        "Se borrará tu cuenta de usuario, tus estadísticas y registros del reto de manera permanente.",
-        confirmDeleteProfile
-      );
-    }
-
     function triggerApplyDate() {
       const inputVal = document.getElementById('new-start-date').value;
       if(!inputVal) return showToast("Selecciona una fecha válida");
       openModal(
         "¿Cambiar fecha de inicio?", 
-        `Moverás el inicio global del reto a la fecha ${inputVal}. Esto recalculará la posición de los días para todos los participantes.`,
+        `Moverás el inicio global del reto a la fecha ${inputVal}. Esto recalculará los días de todos los participantes.`,
         () => applyNewStartDate(inputVal)
       );
     }
