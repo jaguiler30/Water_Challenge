@@ -508,7 +508,18 @@
     }
 
     async function registerUser(id, name, goal, pin) {
-      const cred = await auth.createUserWithEmailAndPassword(pinToEmail(id), pinToPassword(pin));
+      let cred;
+      try {
+        cred = await auth.createUserWithEmailAndPassword(pinToEmail(id), pinToPassword(pin));
+      } catch (e) {
+        if (e.code === 'auth/email-already-in-use') {
+          // Probablemente quedó una cuenta huérfana de un intento anterior que falló al guardar
+          // el perfil. Si el PIN coincide, la reutilizamos en vez de fallar.
+          cred = await auth.signInWithEmailAndPassword(pinToEmail(id), pinToPassword(pin));
+        } else {
+          throw e;
+        }
+      }
       await writeWithRetry(db.ref('users/' + id), { name, goal, days: {}, authUid: cred.user.uid });
     }
 
@@ -548,7 +559,16 @@
         try {
           if (isLegacyProfile) {
             if (inputPin !== u.pin) { showToast("❌ PIN incorrecto. Intenta de nuevo."); return; }
-            const cred = await auth.createUserWithEmailAndPassword(pinToEmail(id), pinToPassword(inputPin));
+            let cred;
+            try {
+              cred = await auth.signInWithEmailAndPassword(pinToEmail(id), pinToPassword(inputPin));
+            } catch (signInErr) {
+              if (signInErr.code === 'auth/user-not-found') {
+                cred = await auth.createUserWithEmailAndPassword(pinToEmail(id), pinToPassword(inputPin));
+              } else {
+                throw signInErr;
+              }
+            }
             await writeWithRetry(db.ref(`users/${id}`), { authUid: cred.user.uid, pin: null }, true);
             executeLogin(id);
             closeModal();
