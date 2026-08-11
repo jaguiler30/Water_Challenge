@@ -456,7 +456,24 @@
 
     const MONTHS = ["Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"];
 
-    window.onload = function() {
+    // Antes de poder mostrar la lista de participantes hace falta estar "autenticado"
+    // (así lo exigen las reglas). Si nadie ha iniciado sesión con su PIN todavía,
+    // usamos una sesión anónima automática solo para poder leer la lista.
+    function ensureAuthReady() {
+      return new Promise((resolve) => {
+        const unsub = auth.onAuthStateChanged((user) => {
+          unsub();
+          if (user) return resolve(user);
+          auth.signInAnonymously()
+            .then(cred => resolve(cred.user))
+            .catch(err => { console.error('No se pudo iniciar sesión anónima:', err); resolve(null); });
+        });
+      });
+    }
+
+    window.onload = async function() {
+      await ensureAuthReady();
+
       db.ref('users').on('value', (snapshot) => {
         allUsers = snapshot.val() || {};
         render();
@@ -647,12 +664,13 @@
       showToast("🥤 Consumo guardado");
     }
 
-    function logout() {
-      auth.signOut();
+    async function logout() {
+      await auth.signOut();
       sessionStorage.removeItem('wc_myid');
       myId = null;
       viewingId = null;
       currentTab = 'users';
+      await ensureAuthReady();
       render();
     }
 
