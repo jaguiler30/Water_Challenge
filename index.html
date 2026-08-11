@@ -494,9 +494,24 @@
         .replace(/'/g, '&#039;');
     }
 
+    // Justo después de crear/iniciar sesión, la conexión de la Realtime Database
+    // puede tardar una fracción de segundo en "reautenticarse" con el nuevo usuario.
+    // Este helper reintenta la escritura un par de veces si eso pasa.
+    async function writeWithRetry(ref, value, isUpdate = false, retries = 4, delayMs = 350) {
+      for (let i = 0; i < retries; i++) {
+        try {
+          await (isUpdate ? ref.update(value) : ref.set(value));
+          return;
+        } catch (e) {
+          if (i === retries - 1) throw e;
+          await new Promise(r => setTimeout(r, delayMs));
+        }
+      }
+    }
+
     async function registerUser(id, name, goal, pin) {
       const cred = await auth.createUserWithEmailAndPassword(pinToEmail(id), pinToPassword(pin));
-      await db.ref('users/' + id).set({ name, goal, days: {}, authUid: cred.user.uid });
+      await writeWithRetry(db.ref('users/' + id), { name, goal, days: {}, authUid: cred.user.uid });
     }
 
     async function updateUserPin(newPin) {
@@ -536,7 +551,7 @@
           if (isLegacyProfile) {
             if (inputPin !== u.pin) { showToast("❌ PIN incorrecto. Intenta de nuevo."); return; }
             const cred = await auth.createUserWithEmailAndPassword(pinToEmail(id), pinToPassword(inputPin));
-            await db.ref(`users/${id}`).update({ authUid: cred.user.uid, pin: null });
+            await writeWithRetry(db.ref(`users/${id}`), { authUid: cred.user.uid, pin: null }, true);
             executeLogin(id);
             closeModal();
             showToast("🔒 Tu cuenta fue actualizada a un acceso más seguro.");
@@ -546,7 +561,13 @@
             closeModal();
           }
         } catch (e) {
-          showToast("❌ PIN incorrecto. Intenta de nuevo.");
+          console.error('Error de login:', e);
+          const wrongPinCodes = ['auth/wrong-password', 'auth/invalid-credential', 'auth/user-not-found'];
+          if (wrongPinCodes.includes(e.code)) {
+            showToast("❌ PIN incorrecto. Intenta de nuevo.");
+          } else {
+            showToast("⚠️ Error técnico (" + (e.code || 'desconocido') + "). Revisa la consola.");
+          }
         }
       });
     }
