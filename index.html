@@ -847,6 +847,24 @@
       render();
     }
 
+    async function resetMyDays() {
+      try {
+        await db.ref(`users/${myId}/days`).set(null);
+        showToast('🗑️ Tus registros fueron reiniciados. ¡A empezar de nuevo!');
+      } catch (e) {
+        console.error(e);
+        showToast('No se pudo reiniciar. Intenta de nuevo.');
+      }
+    }
+
+    function triggerResetMyDays() {
+      openModal(
+        "¿Reiniciar tus registros?",
+        "⚠️ Esto borra <b>todo tu historial</b> de agua registrada (tu racha, tus días cumplidos, todo). No afecta a los demás participantes. Esta acción no se puede deshacer.",
+        () => resetMyDays()
+      );
+    }
+
     async function applyNewStartDate(dateStr) {
       try {
         await saveConfig({ startDate: dateStr });
@@ -1052,9 +1070,15 @@
           </form>
 
           <h3>📅 Configuración Fecha de Inicio</h3>
-          <div class="setting-row">
+          <div class="setting-row" style="margin-bottom:20px;">
             <input type="date" id="new-start-date" class="form-control" value="${START.toISOString().split('T')[0]}" />
             <button class="btn-secondary" onclick="triggerApplyDate()">Aplicar</button>
+          </div>
+
+          <h3>🗑️ Empezar de cero</h3>
+          <div class="setting-row">
+            <p style="font-size:12px; color:#64748b; margin:0; flex:1;">Borra tu historial de agua registrada (solo el tuyo) para arrancar un nuevo reto sin datos viejos de por medio.</p>
+            <button class="btn-secondary" style="border-color:#fca5a5; color:#b91c1c;" onclick="triggerResetMyDays()">Reiniciar mis registros</button>
           </div>
         `;
         wrap.appendChild(settings);
@@ -1070,10 +1094,15 @@
         const u = allUsers[k];
         const totalMl = Object.values(u.days || {}).reduce((acc, vol) => acc + (parseInt(vol, 10) || 0), 0);
         const metDaysCount = Object.values(u.days || {}).filter(v => v >= u.goal).length;
-        return { name: u.name, litros: totalMl / 1000, diasCumplidos: metDaysCount, id: k };
+        const litros = totalMl / 1000;
+        // Puntaje: la consistencia (días cumplidos) pesa más que el volumen total,
+        // así alguien con meta chica pero constante no queda por debajo de alguien
+        // que solo tomó mucha agua unos pocos días.
+        const puntos = (metDaysCount * 10) + Math.round(litros);
+        return { name: u.name, litros, diasCumplidos: metDaysCount, puntos, id: k };
       });
 
-      arr.sort((a, b) => b.litros - a.litros || b.diasCumplidos - a.diasCumplidos);
+      arr.sort((a, b) => b.puntos - a.puntos || b.diasCumplidos - a.diasCumplidos || b.litros - a.litros);
 
       arr.forEach((item, index) => {
         let trophy = index + 1;
@@ -1085,7 +1114,7 @@
         itemEl.className = 'rank-item';
         itemEl.innerHTML = `
           <div class="rank-left"><span class="rank-num">${trophy}</span><span class="rank-name">${escapeHtml(item.name)}</span></div>
-          <div class="rank-stats-container"><div class="rank-score-litros">${item.litros.toFixed(1)} L</div><div class="rank-score-dias">🏆 ${item.diasCumplidos} / 30 d</div></div>
+          <div class="rank-stats-container"><div class="rank-score-litros">⭐ ${item.puntos} pts</div><div class="rank-score-dias">${item.litros.toFixed(1)} L • 🏆 ${item.diasCumplidos}/30 d</div></div>
         `;
         rankContainer.appendChild(itemEl);
       });
@@ -1125,7 +1154,14 @@
     function triggerApplyDate() {
       const inputVal = document.getElementById('new-start-date').value;
       if(!inputVal) return showToast("Fecha inválida");
-      openModal("¿Cambiar inicio?", `Moverás el inicio global a ${inputVal}`, () => applyNewStartDate(inputVal));
+
+      const chosenDate = new Date(inputVal + 'T00:00:00');
+      const today = new Date(); today.setHours(0,0,0,0);
+      let warning = '⚠️ Esto cambia la fecha de inicio para TODOS los participantes, no solo para ti. No borra ningún registro ya guardado, solo mueve la ventana de 30 días que se muestra.';
+      if (chosenDate > today) {
+        warning += ' <br><br>🚫 Ojo: elegiste una fecha futura. Si haces esto, "hoy" quedará fuera del calendario y tu racha se verá en 0 hasta que llegue esa fecha.';
+      }
+      openModal("¿Cambiar inicio del reto?", warning + `<br><br>Nuevo inicio: <b>${inputVal}</b>`, () => applyNewStartDate(inputVal));
     }
 
     // Utilidades
