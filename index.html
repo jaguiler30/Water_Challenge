@@ -627,6 +627,20 @@
     // Cuenta días consecutivos cumpliendo la meta, desde el inicio del reto hasta hoy.
     // El día de hoy no rompe la racha si todavía no se ha registrado (el día no ha terminado),
     // pero si se registra por debajo de la meta, sí la rompe.
+    // Solo cuenta los días que caen dentro del ciclo/reto actual (desde START, 30 días).
+    // Así el ranking y el progreso no se van inflando con meses de retos anteriores.
+    function filterDaysToCurrentWindow(days) {
+      if (!days) return {};
+      const startTime = START.getTime();
+      const endTime = startTime + 29 * 86400000;
+      const filtered = {};
+      Object.keys(days).forEach(dateStr => {
+        const t = new Date(dateStr + 'T00:00:00').getTime();
+        if (t >= startTime && t <= endTime) filtered[dateStr] = days[dateStr];
+      });
+      return filtered;
+    }
+
     function calculateStreaks(days, goal) {
       const todayLocal = new Date(); todayLocal.setHours(0, 0, 0, 0);
       const todayStr = getLocalDateString(todayLocal);
@@ -938,7 +952,7 @@
       
       Object.keys(allUsers).forEach(k => {
         const u = allUsers[k];
-        const metDays = Object.values(u.days || {}).filter(v => v >= u.goal).length;
+        const metDays = Object.values(filterDaysToCurrentWindow(u.days || {})).filter(v => v >= u.goal).length;
         const streaks = calculateStreaks(u.days || {}, u.goal);
         const card = document.createElement('div');
         card.className = 'user-card';
@@ -965,7 +979,8 @@
       const days = u.days || {};
       const goal = u.goal;
 
-      const daysArray = Object.values(days);
+      const cycleDays = filterDaysToCurrentWindow(days);
+      const daysArray = Object.values(cycleDays);
       const daysMet = daysArray.filter(v => v >= goal).length;
       const progressPercent = Math.min(100, Math.round((daysMet / 30) * 100));
       const streaks = calculateStreaks(days, goal);
@@ -1092,8 +1107,9 @@
 
       const arr = Object.keys(allUsers).map(k => {
         const u = allUsers[k];
-        const totalMl = Object.values(u.days || {}).reduce((acc, vol) => acc + (parseInt(vol, 10) || 0), 0);
-        const metDaysCount = Object.values(u.days || {}).filter(v => v >= u.goal).length;
+        const cycleDays = filterDaysToCurrentWindow(u.days || {});
+        const totalMl = Object.values(cycleDays).reduce((acc, vol) => acc + (parseInt(vol, 10) || 0), 0);
+        const metDaysCount = Object.values(cycleDays).filter(v => v >= u.goal).length;
         const litros = totalMl / 1000;
         // Puntaje: la consistencia (días cumplidos) pesa más que el volumen total,
         // así alguien con meta chica pero constante no queda por debajo de alguien
