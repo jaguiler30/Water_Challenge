@@ -313,6 +313,73 @@
       flex-direction: column;
       gap: 8px;
     }
+
+    .streak-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+      font-size: 11px;
+      font-weight: 700;
+      color: #ea580c;
+      background: #ffedd5;
+      border-radius: 20px;
+      padding: 2px 8px;
+      margin-left: 6px;
+    }
+    .ind-card.streak-card {
+      background: linear-gradient(135deg, #fff7ed, #ffedd5);
+      border-color: #fed7aa;
+    }
+    .ind-card.streak-card .ind-val {
+      font-size: 20px;
+    }
+
+    .reminder-banner {
+      background: #fff7ed;
+      border: 1px solid #fdba74;
+      color: #9a3412;
+      border-radius: 10px;
+      padding: 10px 12px;
+      font-size: 12px;
+      font-weight: 600;
+      margin-bottom: 12px;
+      text-align: center;
+    }
+
+    .settings-section {
+      margin-top: 24px;
+      padding-top: 16px;
+      border-top: 1px solid #e2e8f0;
+    }
+    .settings-section h3 {
+      font-size: 13px;
+      margin: 0 0 10px 0;
+      color: #334155;
+    }
+    .setting-row {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+    .btn-secondary {
+      background: #f1f5f9;
+      color: #1e293b;
+      border: 1px solid #cbd5e1;
+      padding: 9px 14px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+    .btn-secondary:hover {
+      background: #e2e8f0;
+    }
+    .btn-secondary.active {
+      background: #dcfce7;
+      border-color: #86efac;
+      color: #166534;
+    }
     .rank-item {
       display: flex;
       align-items: center;
@@ -473,6 +540,7 @@
 
     window.onload = async function() {
       await ensureAuthReady();
+      initReminders();
 
       db.ref('users').on('value', (snapshot) => {
         allUsers = snapshot.val() || {};
@@ -555,6 +623,101 @@
       }
     }
 
+    // --- Racha (estilo Duolingo) ---
+    // Cuenta días consecutivos cumpliendo la meta, desde el inicio del reto hasta hoy.
+    // El día de hoy no rompe la racha si todavía no se ha registrado (el día no ha terminado),
+    // pero si se registra por debajo de la meta, sí la rompe.
+    function calculateStreaks(days, goal) {
+      const todayLocal = new Date(); todayLocal.setHours(0, 0, 0, 0);
+      const todayStr = getLocalDateString(todayLocal);
+      let cursor = new Date(START.getTime()); cursor.setHours(0, 0, 0, 0);
+      let running = 0;
+      let best = 0;
+
+      while (cursor <= todayLocal) {
+        const dStr = getLocalDateString(cursor);
+        const val = days[dStr];
+        if (val !== undefined && val >= goal) {
+          running++;
+          if (running > best) best = running;
+        } else if (dStr === todayStr && val === undefined) {
+          // Hoy todavía sin registrar: no cuenta, pero tampoco rompe la racha.
+        } else {
+          running = 0;
+        }
+        cursor.setDate(cursor.getDate() + 1);
+      }
+      return { current: running, best };
+    }
+
+    function streakEmoji(n) {
+      if (n <= 0) return '🥶';
+      if (n < 3) return '💧';
+      if (n < 7) return '🔥';
+      if (n < 14) return '🔥🔥';
+      if (n < 30) return '🔥🔥🔥';
+      return '🏆';
+    }
+
+    // --- Recordatorios (notificaciones del navegador) ---
+    function notificationsSupported() {
+      return 'Notification' in window;
+    }
+    function notificationsEnabled() {
+      return notificationsSupported() && Notification.permission === 'granted' && localStorage.getItem('wc_notifications_enabled') === '1';
+    }
+
+    async function enableReminders() {
+      if (!notificationsSupported()) return showToast("Tu navegador no soporta notificaciones.");
+      const perm = await Notification.requestPermission();
+      if (perm === 'granted') {
+        localStorage.setItem('wc_notifications_enabled', '1');
+        showToast("🔔 ¡Recordatorios activados!");
+        scheduleReminderChecks();
+        render();
+      } else {
+        showToast("No se activaron los recordatorios.");
+      }
+    }
+
+    function disableReminders() {
+      localStorage.removeItem('wc_notifications_enabled');
+      showToast("🔕 Recordatorios desactivados.");
+      render();
+    }
+
+    let reminderIntervalStarted = false;
+    function scheduleReminderChecks() {
+      if (reminderIntervalStarted) return;
+      reminderIntervalStarted = true;
+      checkAndNotify();
+      setInterval(checkAndNotify, 60 * 60 * 1000); // revisa cada hora
+    }
+
+    function checkAndNotify() {
+      if (!notificationsEnabled() || !myId || !allUsers[myId]) return;
+      const now = new Date();
+      const hour = now.getHours();
+      if (hour < 12 || hour > 21) return; // solo entre 12pm y 9pm, para no molestar de madrugada
+      const todayStr = getLocalDateString(now);
+      const lastNotifyKey = 'wc_last_notify_' + myId;
+      if (localStorage.getItem(lastNotifyKey) === todayStr) return; // ya se avisó hoy
+
+      const days = allUsers[myId].days || {};
+      if (days[todayStr] !== undefined) return; // ya registró hoy
+
+      try {
+        new Notification('💧 Water Challenge', {
+          body: '¡No olvides registrar tu consumo de agua de hoy!'
+        });
+        localStorage.setItem(lastNotifyKey, todayStr);
+      } catch (e) { console.error('No se pudo mostrar la notificación:', e); }
+    }
+
+    function initReminders() {
+      if (notificationsEnabled()) scheduleReminderChecks();
+    }
+
     async function saveIntake(userId, dateStr, amount) {
       await db.ref(`users/${userId}/days/${dateStr}`).set(amount);
     }
@@ -611,6 +774,7 @@
       myId = id;
       sessionStorage.setItem('wc_myid', id);
       viewingId = id;
+      initReminders();
       render();
     }
 
@@ -656,12 +820,21 @@
       updateUserPin(newPin);
     }
 
-    function handleLogIntake(event) {
+    async function handleLogIntake(event) {
       if (event) event.preventDefault();
       const amount = parseInt(document.getElementById('intake-amount').value, 10);
       const todayStr = getLocalDateString(new Date());
-      saveIntake(myId, todayStr, amount);
-      showToast("🥤 Consumo guardado");
+      await saveIntake(myId, todayStr, amount);
+
+      const me = allUsers[myId];
+      const goal = me ? me.goal : 0;
+      if (amount >= goal) {
+        const projectedDays = { ...(me && me.days ? me.days : {}), [todayStr]: amount };
+        const streaks = calculateStreaks(projectedDays, goal);
+        showToast(`${streakEmoji(streaks.current)} ¡Meta cumplida! Racha: ${streaks.current} ${streaks.current === 1 ? 'día' : 'días'}`);
+      } else {
+        showToast("🥤 Consumo guardado");
+      }
     }
 
     async function logout() {
@@ -694,13 +867,14 @@
         const diffTime = new Date().setHours(0,0,0,0) - START.getTime();
         const calcDay = Math.max(1, Math.floor(diffTime / (1000 * 60 * 60 * 24)) + 1);
         
+        const meStreaks = calculateStreaks(me.days || {}, me.goal);
         const banner = document.createElement('div');
         banner.className = 'profile-banner';
         banner.innerHTML = `
           <div class="profile-banner-left">
             <div class="avatar">${escapeHtml(me.name[0])}</div>
             <div class="user-details">
-              <h4>${escapeHtml(me.name)}</h4>
+              <h4>${escapeHtml(me.name)} <span class="streak-badge">${streakEmoji(meStreaks.current)} ${meStreaks.current}</span></h4>
               <p>Meta: ${displayGoal} • Día ${calcDay <= 30 ? calcDay : 30} de 30</p>
             </div>
           </div>
@@ -747,6 +921,7 @@
       Object.keys(allUsers).forEach(k => {
         const u = allUsers[k];
         const metDays = Object.values(u.days || {}).filter(v => v >= u.goal).length;
+        const streaks = calculateStreaks(u.days || {}, u.goal);
         const card = document.createElement('div');
         card.className = 'user-card';
         card.onclick = () => loginAsUser(k);
@@ -756,7 +931,7 @@
           <div class="user-info">
             <div class="avatar">${escapeHtml(u.name[0])}</div>
             <div class="user-details">
-              <h4>${safeName} ${isSecured ? '🔒' : '⚠️ Requiere actualización'}</h4>
+              <h4>${safeName} ${isSecured ? '🔒' : '⚠️ Requiere actualización'} <span class="streak-badge">${streakEmoji(streaks.current)} ${streaks.current}</span></h4>
               <p>Días cumplidos: ${metDays} de 30</p>
             </div>
           </div>
@@ -775,6 +950,7 @@
       const daysArray = Object.values(days);
       const daysMet = daysArray.filter(v => v >= goal).length;
       const progressPercent = Math.min(100, Math.round((daysMet / 30) * 100));
+      const streaks = calculateStreaks(days, goal);
 
       const viewHeader = document.createElement('div');
       viewHeader.className = 'viewing-header';
@@ -783,11 +959,23 @@
       `;
       wrap.appendChild(viewHeader);
 
+      if (userId === myId) {
+        const todayStr0 = getLocalDateString(new Date());
+        const hasLoggedToday = days[todayStr0] !== undefined;
+        if (!hasLoggedToday && !notificationsEnabled() && notificationsSupported()) {
+          const reminderBanner = document.createElement('div');
+          reminderBanner.className = 'reminder-banner';
+          reminderBanner.innerHTML = `🔔 Actívate un recordatorio diario para no perder tu racha ${streakEmoji(streaks.current)} — <a href="#" onclick="enableReminders(); return false;" style="color:#9a3412; text-decoration:underline;">Activar</a>`;
+          wrap.appendChild(reminderBanner);
+        }
+      }
+
       const indGrid = document.createElement('div');
       indGrid.className = 'indicators-grid';
       indGrid.innerHTML = `
         <div class="ind-card"><div class="ind-val">${daysMet}</div><div class="ind-lbl">Cumplidos</div></div>
         <div class="ind-card"><div class="ind-val">${progressPercent}%</div><div class="ind-lbl">Progreso</div></div>
+        <div class="ind-card streak-card"><div class="ind-val">${streakEmoji(streaks.current)} ${streaks.current}</div><div class="ind-lbl">Racha${streaks.best > streaks.current ? ' (mejor: ' + streaks.best + ')' : ''}</div></div>
       `;
       wrap.appendChild(indGrid);
 
@@ -847,6 +1035,16 @@
         const settings = document.createElement('div');
         settings.className = 'settings-section';
         settings.innerHTML = `
+          <h3>🔔 Recordatorios diarios</h3>
+          <div class="setting-row" style="margin-bottom:20px;">
+            <p style="font-size:12px; color:#64748b; margin:0; flex:1;">
+              ${notificationsSupported() ? (notificationsEnabled() ? 'Activados: te avisamos si no has registrado tu agua.' : 'Recibe un aviso en el navegador si se te olvida registrar.') : 'Tu navegador no soporta notificaciones.'}
+            </p>
+            ${notificationsSupported() ? (notificationsEnabled()
+              ? `<button class="btn-secondary" onclick="disableReminders()">Desactivar</button>`
+              : `<button class="btn-secondary" onclick="enableReminders()">Activar</button>`) : ''}
+          </div>
+
           <h3>🔑 Seguridad: Personalizar mi PIN</h3>
           <form id="pin-update-form" class="setting-row" style="margin-bottom:20px;">
             <input type="password" id="new-custom-pin" class="form-control" style="max-width:180px;" placeholder="Nuevo PIN (4 números)" maxlength="4" required />
