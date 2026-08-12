@@ -757,12 +757,13 @@
             if (inputPin !== u.pin) { showToast("❌ PIN incorrecto. Intenta de nuevo."); return; }
             let cred;
             try {
-              cred = await auth.signInWithEmailAndPassword(pinToEmail(id), pinToPassword(inputPin));
-            } catch (signInErr) {
-              if (signInErr.code === 'auth/user-not-found') {
-                cred = await auth.createUserWithEmailAndPassword(pinToEmail(id), pinToPassword(inputPin));
+              cred = await auth.createUserWithEmailAndPassword(pinToEmail(id), pinToPassword(inputPin));
+            } catch (createErr) {
+              if (createErr.code === 'auth/email-already-in-use') {
+                // Cuenta huérfana de un intento de migración anterior: la reutilizamos.
+                cred = await auth.signInWithEmailAndPassword(pinToEmail(id), pinToPassword(inputPin));
               } else {
-                throw signInErr;
+                throw createErr;
               }
             }
             await writeWithRetry(db.ref(`users/${id}`), { authUid: cred.user.uid, pin: null }, true);
@@ -776,7 +777,7 @@
           }
         } catch (e) {
           console.error('Error de login:', e);
-          const wrongPinCodes = ['auth/wrong-password', 'auth/invalid-credential', 'auth/user-not-found'];
+          const wrongPinCodes = ['auth/wrong-password', 'auth/invalid-credential', 'auth/invalid-login-credentials', 'auth/user-not-found'];
           if (wrongPinCodes.includes(e.code)) {
             showToast("❌ PIN incorrecto. Intenta de nuevo.");
           } else {
