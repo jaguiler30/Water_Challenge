@@ -509,6 +509,8 @@
     };
     
     const app = firebase.initializeApp(firebaseConfig);
+    // Único usuario que puede cambiar la fecha global de inicio del reto.
+    const ADMIN_ID = 'jhon_aguilera';
     const db = firebase.database();
     const auth = firebase.auth();
     // La sesión dura solo mientras la pestaña está abierta (coincide con el comportamiento
@@ -1086,8 +1088,11 @@
 
           <h3>📅 Configuración Fecha de Inicio</h3>
           <div class="setting-row" style="margin-bottom:20px;">
-            <input type="date" id="new-start-date" class="form-control" value="${START.toISOString().split('T')[0]}" />
-            <button class="btn-secondary" onclick="triggerApplyDate()">Aplicar</button>
+            ${myId === ADMIN_ID
+              ? `<input type="date" id="new-start-date" class="form-control" value="${START.toISOString().split('T')[0]}" />
+                 <button class="btn-secondary" onclick="triggerApplyDate()">Aplicar</button>`
+              : `<p style="font-size:12px; color:#64748b; margin:0;">Fecha de inicio actual: <b>${START.toISOString().split('T')[0]}</b>. Solo el administrador del reto puede cambiarla.</p>`
+            }
           </div>
 
           <h3>🗑️ Empezar de cero</h3>
@@ -1168,6 +1173,7 @@
 
     function closeModal() { document.getElementById('modal-container').innerHTML = ''; }
     function triggerApplyDate() {
+      if (myId !== ADMIN_ID) return showToast('Solo el administrador puede cambiar la fecha del reto.');
       const inputVal = document.getElementById('new-start-date').value;
       if(!inputVal) return showToast("Fecha inválida");
 
