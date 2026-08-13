@@ -751,6 +751,11 @@
       const isLegacyProfile = !!u.pin;
       const isTemporal = isLegacyProfile && u.pin === "0000";
 
+      // Si el admin reinició este perfil (borró la cuenta de Auth y el authUid en la base
+      // de datos), no queda ni "pin" viejo ni "authUid": hay que dejar crear un PIN nuevo.
+      const needsNewPin = !isLegacyProfile && !u.authUid;
+      if (needsNewPin) return promptSetNewPin(id);
+
       openPinModal(isTemporal, async (inputPin) => {
         try {
           if (isLegacyProfile) {
@@ -785,6 +790,26 @@
           }
         }
       });
+    }
+
+    function promptSetNewPin(id) {
+      openPinModal(
+        false,
+        async (inputPin) => {
+          if (inputPin.length !== 4 || isNaN(inputPin)) return showToast("El PIN debe ser de 4 números");
+          try {
+            const cred = await auth.createUserWithEmailAndPassword(pinToEmail(id), pinToPassword(inputPin));
+            await writeWithRetry(db.ref(`users/${id}`), { authUid: cred.user.uid }, true);
+            executeLogin(id);
+            closeModal();
+            showToast("🔑 ¡Listo! Ya puedes entrar con tu PIN nuevo.");
+          } catch (e) {
+            console.error('Error al crear PIN nuevo:', e);
+            showToast("No se pudo configurar el PIN. Avísale al administrador.");
+          }
+        },
+        "🔄 Tu PIN fue reiniciado por el administrador. Crea uno nuevo de 4 números:"
+      );
     }
 
     function executeLogin(id) {
@@ -962,11 +987,13 @@
         card.onclick = () => loginAsUser(k);
         const safeName = escapeHtml(u.name);
         const isSecured = !!u.authUid;
+        const needsNewPinBadge = !u.pin && !u.authUid;
+        const statusBadge = isSecured ? '🔒' : (needsNewPinBadge ? '🔄 PIN reiniciado' : '⚠️ Requiere actualización');
         card.innerHTML = `
           <div class="user-info">
             <div class="avatar">${escapeHtml(u.name[0])}</div>
             <div class="user-details">
-              <h4>${safeName} ${isSecured ? '🔒' : '⚠️ Requiere actualización'} <span class="streak-badge">${streakEmoji(streaks.current)} ${streaks.current}</span></h4>
+              <h4>${safeName} ${statusBadge} <span class="streak-badge">${streakEmoji(streaks.current)} ${streaks.current}</span></h4>
               <p>Días cumplidos: ${metDays} de 30</p>
             </div>
           </div>
@@ -1143,11 +1170,13 @@
       wrap.appendChild(rankContainer);
     }
 
-    function openPinModal(isTemporal, onPinSubmit) {
+    function openPinModal(isTemporal, onPinSubmit, customMsg) {
       const modalWrap = document.getElementById('modal-container');
-      const msgText = isTemporal 
-        ? "⚠️ Tu perfil es antiguo. Introduce el PIN temporal <b>0000</b> para ingresar y cámbialo en la parte de abajo:" 
-        : "Introduce tu PIN de 4 números para acceder a tu calendario:";
+      const msgText = customMsg
+        ? customMsg
+        : (isTemporal
+          ? "⚠️ Tu perfil es antiguo. Introduce el PIN temporal <b>0000</b> para ingresar y cámbialo en la parte de abajo:"
+          : "Introduce tu PIN de 4 números para acceder a tu calendario:");
 
       modalWrap.innerHTML = `
         <div class="modal-overlay">
