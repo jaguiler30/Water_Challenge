@@ -2,7 +2,7 @@
 // "Agregar a inicio" (instalar como app). No hace notificaciones push
 // ni funciona en segundo plano — eso requeriría Firebase Cloud Messaging
 // + una función en el servidor.
-const CACHE_NAME = 'water-challenge-v1';
+const CACHE_NAME = 'water-challenge-v2';
 
 self.addEventListener('install', (event) => {
   self.skipWaiting();
