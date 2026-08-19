@@ -4,6 +4,10 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Water Challenge 💧</title>
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#2563eb">
+  <link rel="icon" href="icon-192.png">
+  <link rel="apple-touch-icon" href="icon-192.png">
   
   <style>
     *, *::before, *::after {
@@ -541,6 +545,10 @@
     }
 
     window.onload = async function() {
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('sw.js').catch(err => console.error('SW no registrado:', err));
+      }
+
       await ensureAuthReady();
       initReminders();
 
@@ -1025,10 +1033,13 @@
       if (userId === myId) {
         const todayStr0 = getLocalDateString(new Date());
         const hasLoggedToday = days[todayStr0] !== undefined;
-        if (!hasLoggedToday && !notificationsEnabled() && notificationsSupported()) {
+        if (!hasLoggedToday) {
           const reminderBanner = document.createElement('div');
           reminderBanner.className = 'reminder-banner';
-          reminderBanner.innerHTML = `🔔 Actívate un recordatorio diario para no perder tu racha ${streakEmoji(streaks.current)} — <a href="#" onclick="enableReminders(); return false;" style="color:#9a3412; text-decoration:underline;">Activar</a>`;
+          const enableLink = (!notificationsEnabled() && notificationsSupported())
+            ? ` — <a href="#" onclick="enableReminders(); return false;" style="color:#9a3412; text-decoration:underline;">Activar recordatorios</a>`
+            : '';
+          reminderBanner.innerHTML = `🔔 Aún no registras tu agua de hoy — no pierdas tu racha ${streakEmoji(streaks.current)}${enableLink}`;
           wrap.appendChild(reminderBanner);
         }
       }
